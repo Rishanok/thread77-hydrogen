@@ -1,0 +1,53 @@
+{
+  "right": {
+    "dimensions": [
+      500,
+      935
+    ],
+    "mode": "RGBA",
+    "alphaRange": [
+      0,
+      255
+    ],
+    "transparentPixels": 344696,
+    "opaquePixels": 118566,
+    "foregroundRgbUnchanged": true,
+    "hookOpeningTransparent": true,
+    "hangerBarOpaque": true,
+    "bytes": 280195
+  },
+  "three-quarter": {
+    "dimensions": [
+      500,
+      935
+    ],
+    "mode": "RGBA",
+    "alphaRange": [
+      0,
+      255
+    ],
+    "transparentPixels": 252364,
+    "opaquePixels": 209888,
+    "foregroundRgbUnchanged": true,
+    "hookOpeningTransparent": true,
+    "hangerBarOpaque": true,
+    "bytes": 447056
+  },
+  "front": {
+    "dimensions": [
+      500,
+      935
+    ],
+    "mode": "RGBA",
+    "alphaRange": [
+      0,
+      255
+    ],
+    "transparentPixels": 209368,
+    "opaquePixels": 250479,
+    "foregroundRgbUnchanged": true,
+    "hookOpeningTransparent": true,
+    "hangerBarOpaque": true,
+    "bytes": 533362
+  }
+}

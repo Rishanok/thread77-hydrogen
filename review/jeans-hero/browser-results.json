@@ -1,0 +1,21 @@
+{
+  "results": [
+    "Desktop: HTTP 200, four front views, one rail, only front image requested initially.",
+    "Hover: only selected pair changes through available views; rail and four hooks keep identical bounding boxes.",
+    "Leave and rapid re-entry: selected pair returns to front; no stale hover sequence.",
+    "Keyboard: focus, ArrowLeft/Right, Enter and Escape work independently.",
+    "Reduced motion: hover stays still, CSS transitions are disabled, manual cycling remains available.",
+    "768px: four nonoverlapping positions, 44px cycle controls, first tap selects and second tap cycles only selected pair; fixed rail/hooks.",
+    "390px: four nonoverlapping positions, 44px cycle controls, first tap selects and second tap cycles only selected pair; fixed rail/hooks.",
+    "320px: four nonoverlapping positions, 44px cycle controls, first tap selects and second tap cycles only selected pair; fixed rail/hooks.",
+    "Collection CTA navigates normally on mobile; no product URL was invented for the supplied artwork.",
+    "No uncaught browser exceptions."
+  ],
+  "requests": [
+    "http://localhost:47831/products/jean-1/front.png",
+    "http://localhost:47831/products/jean-1/left-angle.png",
+    "http://localhost:47831/products/jean-1/right-angle.png",
+    "http://localhost:47831/products/jean-1/back.png"
+  ],
+  "errors": []
+}

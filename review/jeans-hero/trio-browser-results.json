@@ -1,0 +1,252 @@
+{
+  "results": [
+    "All four garments default to the right side. All three transparent images preload once each.",
+    "Hover begins immediately, passes visibly through three-quarter, settles to front within 400 ms and holds; the other three garments and rail/hooks/swivels stay fixed.",
+    "Exit reverses to side; rapid enter/exit leaves no queued animation.",
+    "Each of all four positions can be hovered independently.",
+    "Keyboard cycling/reset works. Reduced motion disables hover and all transition durations; manual views remain available.",
+    "768px: no horizontal overflow, tap-select/cycle and collection navigation work.",
+    "390px: no horizontal overflow, tap-select/cycle and collection navigation work.",
+    "320px: no horizontal overflow, tap-select/cycle and collection navigation work."
+  ],
+  "requests": [
+    "http://localhost:47831/products/jean-1/right-transparent.png",
+    "http://localhost:47831/products/jean-1/three-quarter-transparent.png",
+    "http://localhost:47831/products/jean-1/front-transparent.png"
+  ],
+  "errors": [],
+  "samples": [
+    {
+      "time": 0.19999999925494194,
+      "opacities": [
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "time": 15.899999998509884,
+      "opacities": [
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "time": 32.59999999962747,
+      "opacities": [
+        0.827238,
+        0.172762,
+        0
+      ]
+    },
+    {
+      "time": 49,
+      "opacities": [
+        0.652626,
+        0.347374,
+        0
+      ]
+    },
+    {
+      "time": 65.89999999850988,
+      "opacities": [
+        0.480764,
+        0.519236,
+        0
+      ]
+    },
+    {
+      "time": 82.59999999962747,
+      "opacities": [
+        0.313056,
+        0.686944,
+        0
+      ]
+    },
+    {
+      "time": 99.19999999925494,
+      "opacities": [
+        0.154452,
+        0.845548,
+        0
+      ]
+    },
+    {
+      "time": 115.69999999925494,
+      "opacities": [
+        0.00524,
+        0.99476,
+        0
+      ]
+    },
+    {
+      "time": 132.59999999962747,
+      "opacities": [
+        0,
+        0.86776,
+        0.13224
+      ]
+    },
+    {
+      "time": 149.2999999988824,
+      "opacities": [
+        0,
+        0.74333,
+        0.25667
+      ]
+    },
+    {
+      "time": 165.89999999850988,
+      "opacities": [
+        0,
+        0.630464,
+        0.369536
+      ]
+    },
+    {
+      "time": 182.5,
+      "opacities": [
+        0,
+        0.529564,
+        0.470436
+      ]
+    },
+    {
+      "time": 199.19999999925494,
+      "opacities": [
+        0,
+        0.440506,
+        0.559494
+      ]
+    },
+    {
+      "time": 215.09999999962747,
+      "opacities": [
+        0,
+        0.361468,
+        0.638532
+      ]
+    },
+    {
+      "time": 232.5,
+      "opacities": [
+        0,
+        0.29261,
+        0.70739
+      ]
+    },
+    {
+      "time": 249.19999999925494,
+      "opacities": [
+        0,
+        0.231986,
+        0.768014
+      ]
+    },
+    {
+      "time": 266,
+      "opacities": [
+        0,
+        0.180296,
+        0.819704
+      ]
+    },
+    {
+      "time": 282.59999999962747,
+      "opacities": [
+        0,
+        0.136082,
+        0.863918
+      ]
+    },
+    {
+      "time": 299.2999999988824,
+      "opacities": [
+        0,
+        0.098512,
+        0.901488
+      ]
+    },
+    {
+      "time": 315.8999999985099,
+      "opacities": [
+        0,
+        0.067292,
+        0.932708
+      ]
+    },
+    {
+      "time": 332.59999999962747,
+      "opacities": [
+        0,
+        0.041902,
+        0.958098
+      ]
+    },
+    {
+      "time": 349.19999999925494,
+      "opacities": [
+        0,
+        0.021976,
+        0.978024
+      ]
+    },
+    {
+      "time": 365.8999999985099,
+      "opacities": [
+        0,
+        0.006852,
+        0.993148
+      ]
+    },
+    {
+      "time": 382.59999999962747,
+      "opacities": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "time": 399.19999999925494,
+      "opacities": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "time": 415.8999999985099,
+      "opacities": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "time": 432.59999999962747,
+      "opacities": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "time": 448.5,
+      "opacities": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "time": 465.8999999985099,
+      "opacities": [
+        0,
+        0,
+        1
+      ]
+    }
+  ]
+}

@@ -1,0 +1,128 @@
+[
+  {
+    "source": "public/products/jean-2/side.png",
+    "output": "public/products/jean-2/side-transparent.png",
+    "dimensions": [
+      500,
+      934
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "transparent_pixels": 337307,
+    "opaque_pixels": 125417,
+    "visible_bounds": [
+      133,
+      7,
+      356,
+      929
+    ],
+    "retained_rgb_matches_source": true
+  },
+  {
+    "source": "public/products/jean-2/three-quarter.png",
+    "output": "public/products/jean-2/three-quarter-transparent.png",
+    "dimensions": [
+      500,
+      935
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "transparent_pixels": 238999,
+    "opaque_pixels": 223269,
+    "visible_bounds": [
+      49,
+      8,
+      424,
+      921
+    ],
+    "retained_rgb_matches_source": true
+  },
+  {
+    "source": "public/products/jean-2/front.png",
+    "output": "public/products/jean-2/front-transparent.png",
+    "dimensions": [
+      500,
+      935
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "transparent_pixels": 194817,
+    "opaque_pixels": 264994,
+    "visible_bounds": [
+      34,
+      8,
+      478,
+      918
+    ],
+    "retained_rgb_matches_source": true
+  },
+  {
+    "source": "public/products/jean-3/side.png",
+    "output": "public/products/jean-3/side-transparent.png",
+    "dimensions": [
+      500,
+      934
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "transparent_pixels": 348633,
+    "opaque_pixels": 114207,
+    "visible_bounds": [
+      131,
+      7,
+      350,
+      908
+    ],
+    "retained_rgb_matches_source": true
+  },
+  {
+    "source": "public/products/jean-3/three-quarter.png",
+    "output": "public/products/jean-3/three-quarter-transparent.png",
+    "dimensions": [
+      500,
+      935
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "transparent_pixels": 257012,
+    "opaque_pixels": 205460,
+    "visible_bounds": [
+      50,
+      9,
+      427,
+      897
+    ],
+    "retained_rgb_matches_source": true
+  },
+  {
+    "source": "public/products/jean-3/front.png",
+    "output": "public/products/jean-3/front-transparent.png",
+    "dimensions": [
+      500,
+      934
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "transparent_pixels": 218359,
+    "opaque_pixels": 242930,
+    "visible_bounds": [
+      37,
+      9,
+      473,
+      888
+    ],
+    "retained_rgb_matches_source": true
+  }
+]
