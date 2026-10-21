@@ -1,7 +1,32 @@
-// Virtual entry point for the app
 import {storefrontRedirect} from '@shopify/hydrogen';
 import {createRequestHandler} from '@shopify/hydrogen/oxygen';
+import {waitUntil as vercelWaitUntil} from '@vercel/functions';
 import {createHydrogenRouterContext} from '~/lib/context';
+
+/**
+ * Maps process.env to Env object on Vercel where bindings come from process.env.
+ */
+function getEnv(env?: Env): Env {
+  if (env?.SESSION_SECRET) return env;
+  return (process.env as unknown as Env) || ({} as Env);
+}
+
+/**
+ * Creates an ExecutionContext for Vercel environments using @vercel/functions waitUntil.
+ */
+function getExecutionContext(ctx?: ExecutionContext): ExecutionContext {
+  if (ctx?.waitUntil) return ctx;
+  return {
+    waitUntil: (p: Promise<unknown>) => {
+      try {
+        vercelWaitUntil(p);
+      } catch {
+        // Fallback when outside active invocation context
+      }
+    },
+    passThroughOnException: () => {},
+  } as ExecutionContext;
+}
 
 /**
  * Export a fetch handler in module format.
@@ -9,14 +34,17 @@ import {createHydrogenRouterContext} from '~/lib/context';
 export default {
   async fetch(
     request: Request,
-    env: Env,
-    executionContext: ExecutionContext,
+    env?: Env,
+    executionContext?: ExecutionContext,
   ): Promise<Response> {
     try {
+      const resolvedEnv = getEnv(env);
+      const resolvedContext = getExecutionContext(executionContext);
+
       const hydrogenContext = await createHydrogenRouterContext(
         request,
-        env,
-        executionContext,
+        resolvedEnv,
+        resolvedContext,
       );
 
       /**
