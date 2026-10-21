@@ -38,7 +38,8 @@ export function usePreviewBag() {
   return {
     lines,
     count: lines.reduce((sum, line) => sum + line.quantity, 0),
-    add(productId: string, size: string) {
+    add(productId: string, size: string, quantity = 1) {
+      if (!Number.isInteger(quantity) || quantity < 1 || quantity > 20) return;
       const existing = lines.find(
         (line) => line.productId === productId && line.size === size,
       );
@@ -46,10 +47,10 @@ export function usePreviewBag() {
         existing
           ? lines.map((line) =>
               line === existing
-                ? {...line, quantity: Math.min(20, line.quantity + 1)}
+                ? {...line, quantity: Math.min(20, line.quantity + quantity)}
                 : line,
             )
-          : [...lines, {productId, size, quantity: 1}],
+          : [...lines, {productId, size, quantity}],
       );
     },
     update(productId: string, size: string, quantity: number) {

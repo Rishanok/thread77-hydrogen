@@ -196,8 +196,6 @@ export default function Homepage() {
                 gridColumn: '1 / -1',
                 padding: '64px 24px',
                 textAlign: 'center',
-                borderRight: '2px solid #000',
-                borderBottom: '2px solid #000',
               }}
             >
               <h3>
@@ -215,23 +213,6 @@ export default function Homepage() {
           )}
         </div>
       </section>
-      <nav className="t77-editorial-service" aria-label="Customer information" data-reveal-group>
-        <Link to="/policies/shipping-policy">
-          <span className="t77-service-index" aria-hidden="true">01</span>
-          <div><h3>On its way.</h3><p>Shipping & delivery</p></div>
-          <span className="t77-service-arrow" aria-hidden="true">↗</span>
-        </Link>
-        <Link to="/policies/refund-policy">
-          <span className="t77-service-index" aria-hidden="true">02</span>
-          <div><h3>A change of mind?</h3><p>Read our returns policy</p></div>
-          <span className="t77-service-arrow" aria-hidden="true">↗</span>
-        </Link>
-        <Link to="/account">
-          <span className="t77-service-index" aria-hidden="true">03</span>
-          <div><h3>Your space.</h3><p>Orders & account details</p></div>
-          <span className="t77-service-arrow" aria-hidden="true">↗</span>
-        </Link>
-      </nav>
     </div>
   );
 }
