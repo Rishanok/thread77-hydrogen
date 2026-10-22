@@ -9,7 +9,9 @@ export default defineConfig(({command}) => ({
   plugins: [
     hydrogen(),
     command === 'serve' ? oxygen() : null,
-    vercel(),
+    // Vercel's SSR entry override conflicts with Hydrogen's Oxygen worker build.
+    // Vercel sets VERCEL=1 for its builds, so enable that adapter only there.
+    process.env.VERCEL === '1' ? vercel() : null,
     reactRouter(),
     tsconfigPaths(),
   ].filter(Boolean),
