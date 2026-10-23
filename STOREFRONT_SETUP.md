@@ -15,15 +15,27 @@ The CLI reported that its signed-in account cannot access the linked store. An a
 ## Catalogue and product details
 
 1. Make products active and publish products and collections to the Hydrogen/Headless sales channel used by this storefront. Check variant prices, size/colour options, images, and stock in Shopify Admin.
-2. The configured Storefront connection returned an empty catalogue during the local smoke check. Confirm publication, the selected store/token, and market availability; an empty response alone does not identify which setting is responsible.
+2. The configured Storefront API currently returns one product and the `frontpage` collection. Products visible only on the Liquid Online Store are not automatically available to Hydrogen.
 3. Demo and scraped data are no longer used as storefront fallbacks. Empty collections show an empty state; unknown product handles return 404. API failures are not disguised as products.
 4. Add optional product metafields as plain text, with Storefront read access:
    - `custom.fabric`
    - `custom.fit`
    - `custom.care`
    - `custom.size_guide`
-   Use single-line or multi-line text definitions. Missing values are hidden. Do not enter rich-text JSON in these fields.
+     Use single-line or multi-line text definitions. Missing values are hidden. Do not enter rich-text JSON in these fields.
 5. Product descriptions, prices, available options, availability, and gallery images come from Shopify. Unverified fabric, delivery, financing, and stock claims have been removed. The fake outfit recommendations are not displayed.
+
+### Publish the Shopify catalog to Hydrogen
+
+The local sync command can publish active products and collections to the Hydrogen publication, then enable automatic publishing for newly created products:
+
+```sh
+python3 scripts/connect_shopify_admin.py
+npm run shopify:catalog:sync -- --dry-run
+npm run shopify:catalog:sync
+```
+
+The Shopify Admin app connection must have `read_products`, `read_publications`, and `write_publications` access. Enter the app's Client ID and Client secret only in the local hidden prompts; they are saved in ignored `.env.admin.local`. The dry run reports what would be published without changing Shopify. The final command publishes active products and collections to Hydrogen and turns on auto-publishing for future products. Draft products remain unpublished.
 
 ## Navigation and filters
 
@@ -69,10 +81,10 @@ Thread77 now supports selling current pieces alongside upcoming previews. No ind
 
 Create these product metafield definitions in Shopify Admin and enable Storefront read access:
 
-| Name | Namespace and key | Type | Values |
-| --- | --- | --- | --- |
-| Launch status | `custom.launch_status` | Single-line text | `coming_soon` or `available` |
-| Expected release date | `custom.release_date` | Date | Optional confirmed date |
+| Name                  | Namespace and key      | Type             | Values                       |
+| --------------------- | ---------------------- | ---------------- | ---------------------------- |
+| Launch status         | `custom.launch_status` | Single-line text | `coming_soon` or `available` |
+| Expected release date | `custom.release_date`  | Date             | Optional confirmed date      |
 
 Leave launch status blank for existing products that should follow normal Shopify availability. `coming_soon` overrides stock in the website's display and purchase checks. An unavailable product without that field remains **Sold out**, rather than being mislabeled as an upcoming release.
 
@@ -142,3 +154,11 @@ The top announcement strip has been removed. Jeans and Tees have separate storef
 Product-card sale labels and struck-through prices use matching-currency compare-at values greater than the displayed price; product-page sale pricing follows the selected variant. Live cart and checkout still need verification after test products are uploaded and published.
 
 Draft import data and access requirements are in `review/SHOPIFY-TEST-PRODUCTS.md` and `review/shopify-test-products.csv`. Browser checks passed for separate categories, removed announcement, size requirement, add-to-preview-bag, quantities/subtotal, refresh persistence, removal, disabled checkout, and mobile overflow. The code checks pass with 15 unit tests.
+
+## Homepage hanger collection and quick shop
+
+Create a Shopify collection titled **Home Screen** with handle **home-screen** and publish it and its products to this Hydrogen storefront. Its first four products, in collection order, populate the hanger. Until the collection has visible products, the existing artwork remains a non-purchasable preview.
+
+Upload the three transparent hanger images to each product and set their image alt text to exactly `hanger-side`, `hanger-three-quarter`, and `hanger-front`. Use the same 500 × 935 canvas, centred hook pivot at y=100, and garment hem near y=921 as the supplied artwork (proportionally scaled images also work). The website supplies descriptive accessible labels using the product title. If a view is missing, the front view is reused; without labelled images, the first product image appears as a single view. The gallery includes the uploaded product images.
+
+Click a connected hanger to open its details on the homepage. Customers select an actual Shopify variant before adding to the real cart; unavailable options and coming-soon products cannot be purchased. The overlay displays cart errors and confirms successful additions with a bag/checkout link. Escape, the close button, or the backdrop closes the overlay and restores focus. Checkout continues through the existing cart and Shopify checkout. Products with more than 250 variants have a link to the full product page for additional options.

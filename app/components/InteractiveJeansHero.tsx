@@ -1,6 +1,6 @@
+import {HangerProductDialog} from './HangerProductDialog';
 import {memo, useCallback, useEffect, useId, useRef, useState} from 'react';
 import type {CSSProperties, ReactNode} from 'react';
-import {Link} from 'react-router';
 import {JEANS_ANGLES} from '~/data/hangingJeans';
 import type {
   HangingJeans,
@@ -89,7 +89,9 @@ const HangingJeansItem = memo(function HangingJeansItem({
   activePosition,
   onActivate,
   onRelease,
+  onSelect,
 }: {
+  onSelect: (garment: HangingJeans) => void;
   garment: HangingJeans;
   position: number;
   reducedMotion: boolean;
@@ -190,7 +192,7 @@ const HangingJeansItem = memo(function HangingJeansItem({
       <button
         type="button"
         className="jeans-hero__inspect"
-        aria-label={`Turn ${garment.title}. Current view: ${ANGLE_NAMES[visibleAngle]}.`}
+        aria-label={garment.product ? `Shop ${garment.title}` : `Turn ${garment.title}. Current view: ${ANGLE_NAMES[visibleAngle]}.`}
         aria-describedby={`${id}-description ${id}-instructions`}
         aria-pressed={selected}
         aria-busy={!ready && !failed}
@@ -198,6 +200,7 @@ const HangingJeansItem = memo(function HangingJeansItem({
           pointerType.current = event.pointerType;
         }}
         onClick={(event) => {
+          if (garment.product) { onSelect(garment); return; }
           if (
             event.detail !== 0 &&
             pointerType.current === 'touch' &&
@@ -247,17 +250,18 @@ const HangingJeansItem = memo(function HangingJeansItem({
           </span>
         </span>
       </button>
-      {garment.productUrl && (
-        <Link className="jeans-hero__product-link" to={garment.productUrl}>
+      {garment.product && (
+        <button type="button" className="jeans-hero__product-link" onClick={() => onSelect(garment)}>
           {garment.title} ↗
-        </Link>
+        </button>
       )}
       <span id={`${id}-description`} className="jeans-hero__sr-only">
         {garment.description}
       </span>
       <span id={`${id}-instructions`} className="jeans-hero__sr-only">
-        Press Enter or Space for the next view, or use the left and right arrow
-        keys. Press Escape or Home to return to the right side.
+        {garment.product
+          ? 'Press Enter or Space to view product details and choose your size.'
+          : 'Press Enter or Space for the next view, or use the left and right arrow keys. Press Escape or Home to return to the right side.'}
       </span>
       <span
         className="jeans-hero__sr-only"
@@ -282,6 +286,7 @@ export function InteractiveJeansHero({
   garments: JeansRail;
   navigation?: ReactNode;
 }) {
+  const [selectedGarment, setSelectedGarment] = useState<HangingJeans | null>(null);
   const id = useId();
   const reducedMotion = useReducedMotion();
   const [activePosition, setActivePosition] = useState<number | null>(null);
@@ -310,7 +315,7 @@ export function InteractiveJeansHero({
         <div className="jeans-hero__rail" aria-hidden="true" />
         <ol
           className="jeans-hero__garments"
-          aria-label="Four hanging denim studies"
+          aria-label="Shop the hanging collection"
         >
           {garments.map((garment, position) => (
             <HangingJeansItem
@@ -321,10 +326,12 @@ export function InteractiveJeansHero({
               activePosition={activePosition}
               onActivate={activate}
               onRelease={release}
+              onSelect={setSelectedGarment}
             />
           ))}
         </ol>
       </div>
+      {selectedGarment?.product && <HangerProductDialog key={selectedGarment.id} product={selectedGarment.product} onClose={() => setSelectedGarment(null)} />}
       {navigation && <div className="jeans-hero__navigation">{navigation}</div>}
     </section>
   );

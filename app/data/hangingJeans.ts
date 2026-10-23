@@ -1,3 +1,5 @@
+import type {HomeScreenQuery} from 'storefrontapi.generated';
+export type HomeProduct = NonNullable<HomeScreenQuery['collection']>['products']['nodes'][number];
 export const JEANS_ANGLES = ['right-side', 'three-quarter', 'front'] as const;
 
 export type JeansAngle = (typeof JEANS_ANGLES)[number];
@@ -19,17 +21,13 @@ export interface HangingJeans {
   title: string;
   description: string;
   productUrl?: string;
+  product?: HomeProduct;
   supportingText?: string;
   preview?: boolean;
   frames: Record<JeansAngle, JeansFrame>;
 }
 
-export type JeansRail = readonly [
-  HangingJeans,
-  HangingJeans,
-  HangingJeans,
-  HangingJeans,
-];
+export type JeansRail = readonly HangingJeans[];
 
 const jeanOneFrames: HangingJeans['frames'] = {
   'right-side': {
@@ -136,3 +134,24 @@ export const jeansViewPreloads = [
     ),
   ),
 ].map((href) => ({rel: 'preload', as: 'image', href}));
+
+/** Hanger uploads use the same 500 × 935 canvas and hook pivot as the supplied art. */
+export function collectionGarments(products: HomeProduct[]): HangingJeans[] {
+  return products.map((product) => {
+    const images = product.images.nodes;
+    const front = images.find((image) => image.altText?.trim().toLowerCase() === 'hanger-front') ?? images[0];
+    const frame = (tag: string): JeansFrame => {
+      const image = images.find((item) => item.altText?.trim().toLowerCase() === tag) ?? front;
+      const prepared = image?.altText?.trim().toLowerCase().startsWith('hanger-');
+      const width = image?.width || 500;
+      const height = image?.height || 935;
+      return {src: image?.url || '/favicon.svg', width, height,
+        pivot: {x: width / 2, y: prepared ? height * 100 / 935 : 0},
+        hangingLength: prepared ? height * 821 / 935 : height,
+        cropTop: prepared ? height * 100 / 935 : 0};
+    };
+    return {id: product.id, title: product.title, description: product.description,
+      productUrl: `/products/${product.handle}`, product,
+      frames: {'right-side': frame('hanger-side'), 'three-quarter': frame('hanger-three-quarter'), front: frame('hanger-front')}};
+  });
+}

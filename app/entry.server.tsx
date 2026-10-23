@@ -6,7 +6,7 @@ import {
   type HydrogenRouterContextProvider,
 } from '@shopify/hydrogen';
 import type {EntryContext} from 'react-router';
-import {createSafeSignal, wrapStreamWithCompletion} from '../lib/hydrogen-vercel';
+import {createSafeSignal, wrapStreamWithCompletion} from '../lib/hydrogen-vercel/safe-abort';
 
 export default async function handleRequest(
   request: Request,

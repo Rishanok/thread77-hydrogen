@@ -5,7 +5,7 @@ import {productState} from '~/lib/launch';
 import {isDesignPreview} from '~/lib/designPreview';
 import {previewProducts, previewMoney} from '~/lib/previewProducts';
 import {InteractiveJeansHero} from '~/components/InteractiveJeansHero';
-import {hangingJeans, jeansViewPreloads} from '~/data/hangingJeans';
+import {hangingJeans, jeansViewPreloads, collectionGarments} from '~/data/hangingJeans';
 import jeansHeroStyles from '~/styles/InteractiveJeansHero.css?url';
 import {useScrollReveal} from '~/lib/useScrollReveal';
 
@@ -26,22 +26,25 @@ export const meta: Route.MetaFunction = ({data}) => [
 
 export async function loader({context, request}: Route.LoaderArgs) {
   const preview = isDesignPreview(request);
+  const homeResult = await context.storefront.query(HOME_SCREEN_QUERY).catch(() => null);
+  const homeProducts = homeResult?.collection?.products.nodes ?? [];
   try {
     const result = await context.storefront.query(RECOMMENDED_PRODUCTS_QUERY);
     return {
+      homeProducts,
       products: result.products.nodes,
       collections: result.collections.nodes,
       catalogueUnavailable: false,
       preview: preview && result.products.nodes.length === 0,
     };
   } catch {
-    return {products: [], collections: [], catalogueUnavailable: true, preview};
+    return {homeProducts, products: [], collections: [], catalogueUnavailable: true, preview};
   }
 }
 
 export default function Homepage() {
   const revealRef = useScrollReveal<HTMLDivElement>();
-  const {products, collections, catalogueUnavailable, preview} =
+  const {products, collections, catalogueUnavailable, preview, homeProducts} =
     useLoaderData<typeof loader>();
   const isWomen = (str?: string | null) =>
     Boolean(str && /wom[ae]n|female|dress|skirt|leggings/i.test(str));
@@ -90,7 +93,7 @@ export default function Homepage() {
   return (
     <div className="t77-editorial-home" ref={revealRef}>
       <InteractiveJeansHero
-        garments={hangingJeans}
+        garments={homeProducts.length ? collectionGarments(homeProducts) : hangingJeans}
         navigation={
           <nav
             className="t77-editorial-category-nav"
@@ -264,6 +267,30 @@ const RECOMMENDED_PRODUCTS_QUERY = `#graphql
     products(first: 48, sortKey: CREATED_AT, reverse: true) {
       nodes {
         ...RecommendedProduct
+      }
+    }
+  }
+` as const;
+
+const HOME_SCREEN_QUERY = `#graphql
+  query HomeScreen($country: CountryCode, $language: LanguageCode)
+    @inContext(country: $country, language: $language) {
+    collection(handle: "home-screen") {
+      products(first: 4, sortKey: COLLECTION_DEFAULT) {
+        nodes {
+          id title handle description availableForSale
+          launchStatus: metafield(namespace: "custom", key: "launch_status") { value }
+          images(first: 50) { nodes { url altText width height } }
+          variants(first: 250) {
+            pageInfo { hasNextPage }
+            nodes {
+              id title availableForSale
+              selectedOptions { name value }
+              image { url altText width height }
+              price { amount currencyCode }
+            }
+          }
+        }
       }
     }
   }
