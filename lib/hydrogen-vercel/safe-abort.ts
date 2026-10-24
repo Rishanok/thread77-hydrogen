@@ -53,8 +53,8 @@ export function wrapStreamWithCompletion(
       }
       controller.enqueue(value);
     },
-    cancel() {
-      reader.cancel();
+    cancel(reason) {
+      return reader.cancel(reason);
     },
   });
 }
