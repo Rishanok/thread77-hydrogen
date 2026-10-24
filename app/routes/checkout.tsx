@@ -7,7 +7,7 @@ export const meta: Route.MetaFunction = () => [
   {name: 'robots', content: 'noindex'},
 ];
 
-export async function loader({context}: Route.LoaderArgs) {
+export async function loader({request, context}: Route.LoaderArgs) {
   try {
     const cart = await context.cart.get({numCartLines: 250});
     if (!cart?.lines.nodes.length) return redirect('/cart');
@@ -29,7 +29,23 @@ export async function loader({context}: Route.LoaderArgs) {
         {error: 'Checkout is temporarily unavailable. Please try again.'},
         {status: 503},
       );
-    return redirect(cart.checkoutUrl);
+
+    const checkoutUrl = new URL(cart.checkoutUrl);
+    const checkoutHost =
+      context.env.PUBLIC_CHECKOUT_DOMAIN ||
+      request.headers.get('x-forwarded-host') ||
+      new URL(request.url).host;
+
+    if (
+      checkoutHost &&
+      !checkoutHost.includes('localhost') &&
+      !checkoutHost.includes('127.0.0.1')
+    ) {
+      checkoutUrl.protocol = 'https:';
+      checkoutUrl.host = checkoutHost;
+    }
+
+    return redirect(checkoutUrl.toString());
   } catch {
     return data(
       {error: 'We could not check your bag. Please try again.'},
