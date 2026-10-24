@@ -180,7 +180,20 @@ function PreviewProductDetails({
                 className="t77-pdp-related-card"
               >
                 <div>
-                  <img src={item.image} alt={item.title} loading="lazy" />
+                  <img
+                    src={item.image}
+                    alt={item.title}
+                    loading="lazy"
+                    className="t77-pdp-related-card__image--front"
+                  />
+                  {item.secondaryImage ? (
+                    <img
+                      src={item.secondaryImage}
+                      alt={item.title}
+                      loading="lazy"
+                      className="t77-pdp-related-card__image--back"
+                    />
+                  ) : null}
                   <span>
                     <ProductIcon name="arrow" />
                   </span>

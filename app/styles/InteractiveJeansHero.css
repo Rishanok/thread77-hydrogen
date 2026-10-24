@@ -1,5 +1,6 @@
-/* One studio and rail; every image is a transparent lower hanger + garment. */
+/* Uploaded transparent images include the complete hanger and garment. */
 .jeans-hero {
+  --lighting-scale: 1;
   --jeans-ink: #202020;
   --jeans-muted: #595959;
   --jeans-gutter: clamp(16px, 4vw, 72px);
@@ -20,15 +21,6 @@
 .jeans-hero__installation {
   max-width: 1480px;
   margin-inline: auto;
-}
-.jeans-hero__edition {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  color: var(--jeans-muted);
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  line-height: 1.5;
 }
 .jeans-hero__headline {
   display: flex;
@@ -52,24 +44,22 @@
   font-weight: 400;
   letter-spacing: -0.065em;
 }
-.jeans-hero__headline p {
-  max-width: 205px;
-  color: var(--jeans-muted);
-  font-size: 13px;
-  line-height: 1.6;
-}
 .jeans-hero__installation {
+  --jeans-stage-height: clamp(280px, calc(100svh - 360px), 540px);
+  --jeans-stage-width: calc(var(--jeans-stage-height) * 440 / 700);
+  --hanger-pitch: calc(var(--jeans-stage-width) * 0.3);
   position: relative;
   width: min(960px, 100%);
+  padding-bottom: 56px;
 }
-/* A shared studio floor keeps the four moving shadows in one environment. */
+/* A shared studio floor keeps the moving shadows in one environment. */
 .jeans-hero__installation::before {
   content: '';
   position: absolute;
-  bottom: 0;
-  left: 4%;
-  width: 92%;
-  height: 12%;
+  top: calc(var(--jeans-stage-width) * 1.42);
+  left: 16%;
+  width: 68%;
+  height: calc(var(--jeans-stage-width) * 0.2);
   background: radial-gradient(ellipse, #25302b12 0%, #25302b00 70%);
   pointer-events: none;
 }
@@ -112,81 +102,54 @@
   right: 1px;
 }
 .jeans-hero__garments {
+  position: relative;
+  z-index: 3;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  width: 70%;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  width: calc(var(--hanger-pitch) * 5);
   margin: 0 auto;
   padding: 0;
   list-style: none;
 }
 .jeans-hero__item {
-  --closet-shift: clamp(16px, 3vw, 44px);
-  --closet-offset: calc(var(--closet-direction, 0) * var(--closet-shift));
   position: relative;
   min-width: 0;
   margin: 0;
   text-align: center;
 }
-/* Keep the pointer/focus hit area stationary as the visible hanger slides. */
-.jeans-hero__suspension {
-  position: absolute;
-  z-index: 3;
-  inset: 0;
-  pointer-events: none;
-}
-.jeans-hero__suspension,
+/* Keep the pointer/focus hit area stationary as the uploaded hanger slides. */
 .jeans-hero__assembly {
-  transform: translateX(var(--closet-offset));
-  transition: transform 320ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-.jeans-hero__hook {
-  position: absolute;
-  z-index: 3;
-  width: 28px;
-  height: 32px;
-  top: -2px;
-  left: calc(50% - 14px);
-  overflow: visible;
-  pointer-events: none;
-}
-.jeans-hero__swivel {
-  position: absolute;
-  z-index: 4;
-  top: 26px;
-  left: calc(50% - 3px);
-  width: 6px;
-  height: 8px;
-  border-radius: 3px;
-  background: linear-gradient(
-    90deg,
-    #181a1f,
-    #e1e5ed 42%,
-    #363c47 70%,
-    #101215
-  );
-  transition: transform 180ms ease;
-  pointer-events: none;
+  --jeans-reveal: 0;
+  --hanger-slide: 0%;
+  --hanger-swing: 0deg;
+  --cloth-sway: 0deg;
+  --hanger-twist: 0deg;
+  --hanger-scale: 1;
+  --floor-drift: 0;
+  --floor-width: 0.45;
+  --floor-opacity: 0.46;
+  --cast-x: 12px;
+  --cast-y: 14px;
+  --cast-blur: 9px;
+  --cast-opacity: 0.18;
+  transform: translateX(var(--hanger-slide));
 }
 .jeans-hero__inspect {
   display: block;
   position: relative;
   width: 100%;
   margin: 0;
-  padding: 32px 0 0;
+  padding: 0;
   border: 0;
   border-radius: 0;
   background: transparent;
   color: inherit;
   font: inherit;
-  cursor: grab;
+  cursor: pointer;
   touch-action: pan-y;
   -webkit-tap-highlight-color: transparent;
 }
-.jeans-hero__inspect:active {
-  cursor: grabbing;
-}
 .jeans-hero__assembly {
-  --jeans-stage-width: min(142.857143%, calc((100svh - 340px) * 440 / 700));
   display: block;
   position: relative;
   /* Leave room for the heading and category navigation on short viewports. */
@@ -195,11 +158,33 @@
   margin-left: calc((100% - var(--jeans-stage-width)) / 2);
   aspect-ratio: 440 / 700;
   pointer-events: none;
-  filter: drop-shadow(7px 9px 5px #18201c26)
-    drop-shadow(15px 18px 13px #18201c14);
 }
-/* A reversible continuous progress value: side → three-quarter → front.
-   Retargeting a CSS transition reverses immediately from its current value. */
+.jeans-hero__assembly::before {
+  content: '';
+  position: absolute;
+  top: 9px;
+  left: calc(50% - 4px);
+  width: 8px;
+  height: 2px;
+  background: #171a1555;
+  filter: blur(0.8px);
+}
+.jeans-hero__lighting {
+  position: absolute;
+  inset: 0;
+  /* Cast the actual garment silhouette; the light stays above and to the left. */
+  filter: drop-shadow(2px 3px 2px #18201c20)
+    drop-shadow(
+      calc(var(--cast-x) * var(--lighting-scale))
+        calc(var(--cast-y) * var(--lighting-scale))
+        calc(var(--cast-blur) * var(--lighting-scale))
+        rgb(24 32 28 / var(--cast-opacity))
+    );
+}
+.jeans-hero__item[data-in-viewer='true'] .jeans-hero__assembly {
+  opacity: 0;
+}
+/* Spring progress is shared by the cloth, angle images and floor shadow. */
 @property --jeans-reveal {
   syntax: '<number>';
   inherits: true;
@@ -208,7 +193,10 @@
 .jeans-hero__views {
   position: absolute;
   inset: 0;
-  transition: --jeans-reveal 360ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  perspective: 900px;
+  perspective-origin: 50% 0;
+  transform-origin: 50% 1.5%;
+  transform: rotate(var(--hanger-swing));
 }
 .jeans-hero__frame {
   position: absolute;
@@ -217,11 +205,17 @@
   border-radius: 0;
   opacity: 0;
   user-select: none;
+  backface-visibility: hidden;
+  transform-origin: 50% 2%;
 }
 .jeans-hero__frame[data-view='right-side'] {
+  transform: rotateY(calc(var(--jeans-reveal) * 100deg + var(--hanger-twist)));
   opacity: clamp(0, calc(1 - var(--jeans-reveal) * 2), 1);
 }
 .jeans-hero__frame[data-view='three-quarter'] {
+  transform: rotateY(
+    calc((var(--jeans-reveal) - 0.5) * 100deg + var(--hanger-twist))
+  );
   opacity: clamp(
     0,
     min(calc(var(--jeans-reveal) * 2), calc(2 - var(--jeans-reveal) * 2)),
@@ -229,7 +223,44 @@
   );
 }
 .jeans-hero__frame[data-view='front'] {
+  transform: rotateY(
+    calc((var(--jeans-reveal) - 1) * 100deg + var(--hanger-twist))
+  );
   opacity: clamp(0, calc(var(--jeans-reveal) * 2 - 1), 1);
+}
+/* Swap two angle photographs at the narrow edge of the turn. */
+.jeans-hero__views[data-view-count='2']
+  .jeans-hero__frame[data-view='right-side'] {
+  transform: rotateY(calc(var(--jeans-reveal) * 180deg + var(--hanger-twist)));
+  opacity: clamp(0, calc((0.5 - var(--jeans-reveal)) * 100 + 0.5), 1);
+}
+.jeans-hero__views[data-view-count='2']
+  .jeans-hero__frame[data-view='three-quarter'] {
+  opacity: 0;
+}
+.jeans-hero__views[data-view-count='2'] .jeans-hero__frame[data-view='front'] {
+  transform: rotateY(
+    calc((var(--jeans-reveal) - 1) * 180deg + var(--hanger-twist))
+  );
+  opacity: clamp(0, calc((var(--jeans-reveal) - 0.5) * 100 + 0.5), 1);
+}
+.jeans-hero__frame > img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  user-select: none;
+}
+/* Both pieces are the same uploaded photograph, joined at the hanger's neck. */
+.jeans-hero__hook-image {
+  clip-path: inset(0 0 88% 0);
+}
+.jeans-hero__cloth-image {
+  clip-path: inset(12% 0 0);
+  transform-origin: 50% 12%;
+  transform: rotate(var(--cloth-sway)) scale(var(--hanger-scale));
 }
 .jeans-hero__shadow {
   position: absolute;
@@ -247,10 +278,9 @@
   );
   filter: blur(3px);
   /* Inherit the exact frame progress, including reversal midway through a turn. */
-  opacity: calc(0.76 + var(--jeans-reveal) * 0.22);
-  transform: translateX(calc(var(--jeans-reveal) * 3%))
-    skewX(calc(-22deg + var(--jeans-reveal) * 14deg))
-    scaleX(calc(0.48 + var(--jeans-reveal) * 0.52));
+  opacity: var(--floor-opacity);
+  transform: translateX(calc(var(--jeans-stage-width) * var(--floor-drift)))
+    skewX(calc(-22deg + var(--jeans-reveal) * 14deg)) scaleX(var(--floor-width));
   pointer-events: none;
 }
 .jeans-hero__shadow::after {
@@ -299,14 +329,10 @@
     flex-shrink: 0;
     margin-block: auto;
   }
-  .jeans-hero__assembly {
-    /* Reserve space for both the overlay header and the category bar. */
-    --jeans-stage-width: min(142.857143%, calc((100svh - 410px) * 440 / 700));
-  }
 }
 @media (max-width: 768px), (max-width: 1024px) and (pointer: coarse) {
   .jeans-hero {
-    --mobile-hook-height: clamp(12px, 3.4vw, 18px);
+    --lighting-scale: 0.6;
     --jeans-gutter: 16px;
     padding: 16px var(--jeans-gutter) 12px;
   }
@@ -333,10 +359,6 @@
   .jeans-hero .jeans-hero__headline h1 {
     font-size: clamp(30px, 7.4vw, 44px);
   }
-  .jeans-hero__headline p {
-    max-width: 125px;
-    font-size: 11px;
-  }
   .jeans-hero__rail {
     top: 3px;
     height: 3px;
@@ -350,34 +372,18 @@
     width: 4px;
     height: 6px;
   }
-  .jeans-hero__hook {
-    width: calc(var(--mobile-hook-height) * 8 / 9);
-    height: var(--mobile-hook-height);
-    left: calc(50% - var(--mobile-hook-height) * 4 / 9);
-    top: -1px;
-  }
-  .jeans-hero__swivel {
-    top: calc(var(--mobile-hook-height) - 3px);
-    width: 3px;
-    height: 4px;
-    left: calc(50% - 1.5px);
-  }
-  .jeans-hero__inspect {
-    padding-top: var(--mobile-hook-height);
-  }
-  .jeans-hero__garments {
-    width: 88%;
-  }
-  .jeans-hero__item {
-    --closet-shift: clamp(5px, 1.5vw, 9px);
-  }
-  .jeans-hero__assembly {
-    /* Width limits small phones; viewport height limits short landscape views. */
+  .jeans-hero__installation {
+    --jeans-stage-height: clamp(220px, 42svh, 350px);
     --jeans-stage-width: min(
-      113.636364%,
-      calc(clamp(96px, 32svh, 220px) * 440 / 700)
+      calc(var(--jeans-stage-height) * 440 / 700),
+      calc((100vw - var(--jeans-gutter) * 2) / 2.05)
     );
-    filter: drop-shadow(3px 4px 3px #18201c29);
+    margin-top: 18px;
+  }
+  .jeans-hero__assembly::before {
+    top: 4px;
+    width: 5px;
+    left: calc(50% - 2.5px);
   }
   .jeans-hero__shadow {
     height: 10px;
@@ -389,55 +395,518 @@
     padding-top: 68px;
   }
 }
-@media (max-width: 480px) {
-  .jeans-hero__edition > span:last-child,
-  .jeans-hero__headline p {
-    display: none;
-  }
-}
 @media (prefers-reduced-motion: reduce) {
-  .jeans-hero__suspension,
   .jeans-hero__assembly,
   .jeans-hero__views,
-  .jeans-hero__frame,
-  .jeans-hero__swivel {
+  .jeans-hero__frame {
     /* Override the global reduced-motion duration without a residual fade. */
     transition: none !important;
   }
 }
 /* A text control also opens the product details. */
 .jeans-hero__product-link {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  width: max-content;
+  max-width: min(280px, 75vw);
   border: 0;
   background: transparent;
   cursor: pointer;
   display: inline-block;
   min-height: 44px;
-  padding: 10px 0;
+  padding: 10px 8px;
   color: var(--jeans-ink);
   font-size: 13px;
   text-underline-offset: 4px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 6px);
+  transition:
+    opacity 220ms ease,
+    transform 350ms ease;
+}
+.jeans-hero__item[data-selected='true'] .jeans-hero__product-link,
+.jeans-hero__product-link:focus-visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, 0);
 }
 
-/* Native modal keeps keyboard focus within the product and covers the site header. */
-.hanger-dialog { position: fixed; inset: 0; margin: auto; width: min(1100px, 94vw); max-width: 94vw; max-height: 92dvh; padding: 0; border: 0; color: #202020; background: #f5f5f1; overflow: auto; box-shadow: 0 24px 100px #0003; }
-.hanger-dialog::backdrop { background: #20202055; backdrop-filter: blur(8px); }
-.hanger-dialog[open] { animation: hanger-open .25s ease-out; }
-.hanger-dialog__panel { display: grid; grid-template-columns: 1.15fr 1fr; position: relative; }
-.hanger-dialog__close { position: absolute; top: 14px; right: 14px; z-index: 2; width: 44px; height: 44px; border: 1px solid #ccc; border-radius: 50%; background: white; cursor: pointer; }
-.hanger-dialog__gallery { min-width: 0; padding: 32px; background: radial-gradient(ellipse, #fff, #e9ece9); }
-.hanger-dialog__image { width: 100%; height: 58dvh; object-fit: contain; }
-.hanger-dialog__thumbnails { display: flex; gap: 8px; overflow-x: auto; padding: 12px 0; }
-.hanger-dialog__thumbnails button { flex: 0 0 52px; height: 64px; background: transparent; border: 1px solid #bbb; cursor: pointer; }
-.hanger-dialog__thumbnails button[aria-pressed=true] { border: 2px solid #222; }
-.hanger-dialog__thumbnails img { width: 100%; height: 100%; object-fit: contain; }
-.hanger-dialog__details { padding: 72px 36px 36px; display: flex; flex-direction: column; gap: 20px; }
-.hanger-dialog__details h2 { font-size: clamp(26px, 3vw, 42px); line-height: 1.1; margin: 0; }
-.hanger-dialog__eyebrow { font-size: 11px; letter-spacing: .15em; }
-.hanger-dialog__description { white-space: pre-line; font-size: 14px; line-height: 1.6; max-height: 180px; overflow: auto; }
-.hanger-dialog__details select { width: 100%; min-height: 48px; padding: 12px; border: 1px solid #777; background: white; color: #222; }
-.hanger-dialog__add { width: 100%; padding: 17px; background: #202020; color: white; border: 0; cursor: pointer; }
-.hanger-dialog__add:disabled { opacity: .5; cursor: not-allowed; }
-.hanger-dialog button:focus-visible, .hanger-dialog a:focus-visible, .hanger-dialog select:focus-visible { outline: 3px solid #776143; outline-offset: 3px; }
-@keyframes hanger-open { from { opacity: 0; transform: translateY(20px) scale(.98); } to { opacity: 1; transform: none; } }
-@media(max-width: 700px) { .hanger-dialog__panel { grid-template-columns: 1fr; } .hanger-dialog__image { height: 38dvh; } .hanger-dialog__gallery { padding: 20px; } .hanger-dialog__details { padding: 24px; } }
-@media(prefers-reduced-motion: reduce) { .hanger-dialog[open] { animation: none; } }
+@media (hover: none) {
+  .jeans-hero__product-link {
+    display: none !important;
+  }
+}
+
+/* The selected garment lifts out of the rail into a full-screen viewing room. */
+.hanger-dialog {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  max-width: 100vw;
+  height: 100dvh;
+  max-height: 100dvh;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #202020;
+  overflow: hidden;
+  overscroll-behavior: contain;
+}
+.hanger-dialog[open] {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+}
+.hanger-dialog::backdrop {
+  background: #f5f5f1d9;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  animation: hanger-room-in 350ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.hanger-dialog[data-closing='true']::backdrop {
+  animation: hanger-room-out 260ms cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+.hanger-dialog__backdrop {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  cursor: zoom-out;
+}
+.hanger-dialog__header {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px clamp(20px, 4vw, 64px);
+  pointer-events: none;
+}
+.hanger-dialog__brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.hanger-dialog__brand-logo {
+  height: 20px;
+  width: auto;
+  max-width: 110px;
+  object-fit: contain;
+  display: block;
+}
+.hanger-dialog__brand span {
+  font-size: 9px;
+  font-weight: 400;
+  font-style: normal;
+  letter-spacing: 0.14em;
+}
+.hanger-dialog__close {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 44px;
+  border: 0;
+  padding: 0 4px 0 12px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  pointer-events: auto;
+}
+.hanger-dialog__close span {
+  font-size: 28px;
+  font-weight: 300;
+}
+.hanger-dialog__panel {
+  position: relative;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 12px;
+  min-height: 0;
+  padding: 12px 24px max(12px, env(safe-area-inset-bottom));
+  pointer-events: none;
+}
+.hanger-dialog__gallery {
+  min-height: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  margin: 0;
+  transform-origin: 50% 1.5%;
+  animation: hanger-viewer-sway 8s ease-in-out infinite;
+}
+.hanger-dialog__image {
+  display: block;
+  width: auto;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  transform-origin: 50% 0;
+  filter: drop-shadow(2px 4px 3px #18201c1a)
+    drop-shadow(14px 22px 16px #18201c29);
+  animation: hanger-image-in 400ms cubic-bezier(0.2, 0.7, 0.25, 1);
+}
+.hanger-dialog__details {
+  position: relative;
+  width: min(540px, 100%);
+  margin: 0 auto;
+  text-align: center;
+  pointer-events: auto;
+  animation: hanger-details-in 700ms ease both;
+}
+.hanger-dialog__eyebrow {
+  margin: 0 0 4px;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: #6d6d65;
+}
+.hanger-dialog__details h2 {
+  margin: 0;
+  font-family: Archivo, sans-serif;
+  font-size: clamp(23px, 2.6vw, 32px);
+  font-weight: 550;
+  letter-spacing: -0.045em;
+  line-height: 1.1;
+}
+.hanger-dialog__price {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  margin-top: 6px;
+  font-size: 14px;
+}
+.hanger-dialog__angles {
+  display: flex;
+  overflow-x: auto;
+  gap: 3px;
+  width: fit-content;
+  max-width: 100%;
+  margin: 10px auto 12px;
+  padding: 3px;
+  border: 1px solid #202020;
+  border-radius: 24px !important;
+}
+.hanger-dialog__angles button {
+  flex: 0 0 auto;
+  border: 0;
+  border-radius: 20px !important;
+  padding: 10px 20px;
+  min-height: 40px;
+  color: #202020;
+  background: transparent;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition:
+    background 180ms,
+    color 180ms;
+}
+.hanger-dialog__angles button[aria-pressed='true'] {
+  background: #202020;
+  color: white;
+}
+.hanger-dialog__purchase {
+  display: grid;
+  gap: 10px;
+  max-width: 380px;
+  margin: 0 auto;
+}
+.hanger-dialog__options {
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+.hanger-dialog__options legend,
+.hanger-dialog__select label {
+  margin: 0 auto 4px;
+  font-size: 11px;
+  color: #62625a;
+}
+.hanger-dialog__options > div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 7px;
+}
+.hanger-dialog__options button {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 1px solid #bdbdb4;
+  border-radius: 3px;
+  background: transparent;
+  color: #202020;
+  font-size: 12px;
+  cursor: pointer;
+}
+.hanger-dialog__options button[aria-pressed='true'] {
+  border-color: #202020;
+  box-shadow: inset 0 0 0 1px #202020;
+}
+.hanger-dialog__options button:disabled {
+  opacity: 0.35;
+  text-decoration: line-through;
+  cursor: not-allowed;
+}
+.hanger-dialog__select {
+  display: grid;
+  gap: 4px;
+}
+.hanger-dialog__select select {
+  min-height: 44px;
+  padding: 10px;
+  border: 1px solid #aaa99e;
+  background: transparent;
+}
+.hanger-dialog__add {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  width: 100%;
+  min-height: 48px;
+  padding: 14px 20px;
+  border: 1px solid #202020;
+  border-radius: 2px;
+  background: #202020;
+  color: #fff;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 180ms;
+}
+.hanger-dialog__add:hover:not(:disabled) {
+  background: #3b3d36;
+}
+.hanger-dialog__add:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.hanger-dialog__description {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  margin: 10px auto 0;
+  max-width: 440px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #59594f;
+}
+.hanger-dialog__actions {
+  display: flex;
+  justify-content: center;
+  margin: 18px auto 0;
+}
+.hanger-dialog__availability-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 48px;
+  padding: 14px 32px;
+  background: #202020;
+  color: #ffffff !important;
+  text-decoration: none !important;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  border-radius: 2px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: background 180ms ease, transform 150ms ease, box-shadow 180ms ease;
+  cursor: pointer;
+}
+.hanger-dialog__availability-btn:hover {
+  background: #383838;
+  color: #ffffff !important;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.14);
+}
+.hanger-dialog__availability-btn span:last-child {
+  font-size: 14px;
+  transition: transform 180ms ease;
+}
+.hanger-dialog__availability-btn:hover span:last-child {
+  transform: translate(2px, -2px);
+}
+.hanger-dialog__browse {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.hanger-dialog__arrow {
+  position: absolute;
+  top: min(24dvh, 250px);
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border: 1px solid #333;
+  border-radius: 50% !important;
+  background: transparent;
+  color: inherit;
+  font-size: 20px;
+  cursor: pointer;
+  pointer-events: auto;
+}
+.hanger-dialog__arrow:hover {
+  background: #2020200d;
+}
+.hanger-dialog__arrow--previous {
+  left: 6vw;
+}
+.hanger-dialog__arrow--next {
+  right: 6vw;
+}
+.hanger-dialog__count {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: #69695e;
+}
+.hanger-dialog button:focus-visible,
+.hanger-dialog a:focus-visible,
+.hanger-dialog select:focus-visible,
+.hanger-dialog summary:focus-visible {
+  outline: 2px solid #776143;
+  outline-offset: 4px;
+}
+.hanger-dialog[data-closing='true'] .hanger-dialog__details,
+.hanger-dialog[data-closing='true'] .hanger-dialog__header,
+.hanger-dialog[data-closing='true'] .hanger-dialog__browse {
+  animation: none !important;
+  opacity: 0 !important;
+  transform: translateY(6px) !important;
+  transition: opacity 130ms cubic-bezier(0.4, 0, 0.2, 1), transform 130ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+  pointer-events: none !important;
+}
+@keyframes hanger-viewer-sway {
+  0%,
+  100% {
+    transform: rotate(-0.16deg);
+  }
+  50% {
+    transform: rotate(0.22deg);
+  }
+}
+@keyframes hanger-room-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes hanger-room-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@keyframes hanger-details-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  30% {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes hanger-image-in {
+  from {
+    opacity: 0.3;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (max-width: 700px) {
+  .hanger-dialog__header {
+    padding: 10px 20px;
+  }
+  .hanger-dialog__brand span {
+    display: none;
+  }
+  .hanger-dialog__panel {
+    padding-inline: 20px;
+    gap: 8px;
+  }
+  .hanger-dialog__arrow {
+    top: 18dvh;
+    width: 42px;
+    height: 42px;
+  }
+  .hanger-dialog__arrow--previous {
+    left: 12px;
+  }
+  .hanger-dialog__arrow--next {
+    right: 12px;
+  }
+  .hanger-dialog__details h2 {
+    font-size: 27px;
+  }
+}
+/* On short landscape screens the garment and purchase controls share a row. */
+@media (min-width: 600px) and (max-height: 600px) {
+  .hanger-dialog__panel {
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+    align-items: center;
+    gap: 24px;
+  }
+  .hanger-dialog__gallery {
+    height: 100%;
+  }
+  .hanger-dialog__details h2 {
+    font-size: 23px;
+  }
+  .hanger-dialog__description,
+  .hanger-dialog__eyebrow {
+    display: none;
+  }
+  .hanger-dialog__arrow {
+    top: 40%;
+  }
+  .hanger-dialog__arrow--previous {
+    left: 0;
+  }
+  .hanger-dialog__arrow--next {
+    left: calc(50% - 56px);
+    right: auto;
+  }
+  .hanger-dialog__count {
+    left: 25%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hanger-dialog *,
+  .hanger-dialog::backdrop {
+    animation: none !important;
+    transition: none !important;
+  }
+  .jeans-hero__product-link,
+  .jeans-hero__assembly {
+    transition: none !important;
+  }
+}

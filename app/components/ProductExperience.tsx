@@ -139,172 +139,164 @@ export function ProductGallery({
     setActive((index + direction + photos.length) % photos.length);
   return (
     <div className="t77-pdp-gallery">
-      <div className="t77-pdp-stage">
-        {photo ? (
-          <button
-            className="t77-pdp-photo-button"
-            type="button"
-            aria-label={`Enlarge image ${index + 1} of ${title}`}
-            onClick={() => {
-              setMagnifier(null);
-              hoverDismissed.current = true;
-              if (!swiped.current) setZoomed(true);
-              swiped.current = false;
-            }}
-            onPointerEnter={() => {
-              hoverDismissed.current = false;
-            }}
-            onPointerLeave={() => setMagnifier(null)}
-            onPointerMove={(event) => {
-              const img = imageRef.current;
-              if (
-                !img ||
-                zoomed ||
-                hoverDismissed.current ||
-                event.pointerType !== 'mouse' ||
-                !window.matchMedia(
-                  '(min-width: 1024px) and (hover: hover) and (pointer: fine)',
-                ).matches
-              )
-                return;
-              const rect = img.getBoundingClientRect();
-              const panelWidth = Math.min(
-                520,
-                window.innerWidth - rect.right - 36,
-              );
-              const panelHeight = Math.min(
-                720,
-                rect.height,
-                window.innerHeight - Math.max(rect.top, 96) - 24,
-              );
-              if (panelWidth < 200 || panelHeight < 180) {
-                setMagnifier(null);
-                return;
-              }
-              setMagnifier(
-                productZoom({
-                  width: rect.width,
-                  height: rect.height,
-                  naturalWidth: img.naturalWidth,
-                  naturalHeight: img.naturalHeight,
-                  x: event.clientX - rect.left,
-                  y: event.clientY - rect.top,
-                  panelWidth,
-                  panelHeight,
-                }),
-              );
-            }}
-            onTouchStart={(event) => {
-              swiped.current = false;
-              touch.current = {
-                x: event.touches[0].clientX,
-                y: event.touches[0].clientY,
-              };
-            }}
-            onTouchEnd={(event) => {
-              if (!touch.current || photos.length < 2) return;
-              const dx = event.changedTouches[0].clientX - touch.current.x;
-              const dy = event.changedTouches[0].clientY - touch.current.y;
-              if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
-                swiped.current = true;
-                changeImage(dx < 0 ? 1 : -1);
-              }
-              touch.current = null;
-            }}
-          >
-            <img
-              ref={imageRef}
-              src={photo.url}
-              alt={photo.altText || `${title}, view ${index + 1}`}
-              loading="eager"
-            />
-            {magnifier && (
-              <span
-                className="t77-pdp-magnifier-lens"
-                aria-hidden="true"
-                style={{
-                  width: magnifier.lensWidth,
-                  height: magnifier.lensHeight,
-                  transform: `translate3d(${magnifier.lensX}px, ${magnifier.lensY}px, 0)`,
-                }}
-              />
-            )}
-            <span className="t77-pdp-zoom">
-              <ProductIcon name="zoom" />
-            </span>
-          </button>
-        ) : (
-          <div className="t77-pdp-photo-empty">
-            Product photography coming soon
-          </div>
-        )}
-        {magnifier && photo && (
-          <div
-            className="t77-pdp-magnifier"
-            aria-hidden="true"
-            style={{width: magnifier.panelWidth, height: magnifier.panelHeight}}
-          >
-            <img
-              src={photo.url}
-              alt=""
-              style={{
-                width: magnifier.imageWidth,
-                height: magnifier.imageHeight,
-                transform: `translate3d(${magnifier.imageX}px, ${magnifier.imageY}px, 0)`,
-              }}
-            />
-          </div>
-        )}
+      <div className="t77-pdp-gallery-layout">
         {photos.length > 1 && (
-          <div className="t77-pdp-gallery-controls">
+          <div className="t77-pdp-thumbnails" aria-label="Product images">
+            {photos.map((image, i) => (
+              <button
+                key={image.url}
+                type="button"
+                aria-label={`View image ${i + 1}`}
+                aria-pressed={i === index}
+                onClick={() => setActive(i)}
+                onMouseEnter={() => setActive(i)}
+              >
+                <img src={image.url} alt="" loading="lazy" />
+              </button>
+            ))}
+          </div>
+        )}
+        <div className="t77-pdp-stage">
+          {photo ? (
             <button
+              className="t77-pdp-photo-button"
               type="button"
-              aria-label="Previous image"
-              onClick={() => changeImage(-1)}
+              aria-label={`Enlarge image ${index + 1} of ${title}`}
+              onClick={() => {
+                setMagnifier(null);
+                hoverDismissed.current = true;
+                if (!swiped.current) setZoomed(true);
+                swiped.current = false;
+              }}
+              onPointerEnter={() => {
+                hoverDismissed.current = false;
+              }}
+              onPointerLeave={() => setMagnifier(null)}
+              onPointerMove={(event) => {
+                const img = imageRef.current;
+                if (
+                  !img ||
+                  zoomed ||
+                  hoverDismissed.current ||
+                  event.pointerType !== 'mouse' ||
+                  !window.matchMedia(
+                    '(min-width: 1024px) and (hover: hover) and (pointer: fine)',
+                  ).matches
+                )
+                  return;
+                const rect = img.getBoundingClientRect();
+                const panelWidth = Math.min(
+                  520,
+                  window.innerWidth - rect.right - 36,
+                );
+                const panelHeight = Math.min(
+                  720,
+                  rect.height,
+                  window.innerHeight - Math.max(rect.top, 96) - 24,
+                );
+                if (panelWidth < 200 || panelHeight < 180) {
+                  setMagnifier(null);
+                  return;
+                }
+                setMagnifier(
+                  productZoom({
+                    width: rect.width,
+                    height: rect.height,
+                    naturalWidth: img.naturalWidth,
+                    naturalHeight: img.naturalHeight,
+                    x: event.clientX - rect.left,
+                    y: event.clientY - rect.top,
+                    panelWidth,
+                    panelHeight,
+                  }),
+                );
+              }}
+              onTouchStart={(event) => {
+                swiped.current = false;
+                touch.current = {
+                  x: event.touches[0].clientX,
+                  y: event.touches[0].clientY,
+                };
+              }}
+              onTouchEnd={(event) => {
+                if (!touch.current || photos.length < 2) return;
+                const dx = event.changedTouches[0].clientX - touch.current.x;
+                const dy = event.changedTouches[0].clientY - touch.current.y;
+                if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
+                  swiped.current = true;
+                  changeImage(dx < 0 ? 1 : -1);
+                }
+                touch.current = null;
+              }}
             >
-              <span className="t77-icon-back">
-                <ProductIcon name="arrow" />
+              <img
+                ref={imageRef}
+                src={photo.url}
+                alt={photo.altText || `${title}, view ${index + 1}`}
+                loading="eager"
+              />
+              {magnifier && (
+                <span
+                  className="t77-pdp-magnifier-lens"
+                  aria-hidden="true"
+                  style={{
+                    width: magnifier.lensWidth,
+                    height: magnifier.lensHeight,
+                    transform: `translate3d(${magnifier.lensX}px, ${magnifier.lensY}px, 0)`,
+                  }}
+                />
+              )}
+              <span className="t77-pdp-zoom">
+                <ProductIcon name="zoom" />
               </span>
             </button>
-            <span aria-live="polite">
-              {String(index + 1).padStart(2, '0')} /{' '}
-              {String(photos.length).padStart(2, '0')}
-            </span>
-            <button
-              type="button"
-              aria-label="Next image"
-              onClick={() => changeImage(1)}
+          ) : (
+            <div className="t77-pdp-photo-empty">
+              Product photography coming soon
+            </div>
+          )}
+          {magnifier && photo && (
+            <div
+              className="t77-pdp-magnifier"
+              aria-hidden="true"
+              style={{width: magnifier.panelWidth, height: magnifier.panelHeight}}
             >
-              <ProductIcon name="arrow" />
-            </button>
-          </div>
-        )}
-      </div>
-      {photos.length > 1 && (
-        <div className="t77-pdp-thumbnails" aria-label="Product images">
-          {photos.map((image, i) => (
-            <button
-              key={image.url}
-              type="button"
-              aria-label={`View image ${i + 1}`}
-              aria-pressed={i === index}
-              onClick={() => setActive(i)}
-            >
-              <img src={image.url} alt="" loading="lazy" />
-              <span>{String(i + 1).padStart(2, '0')}</span>
-            </button>
-          ))}
+              <img
+                src={photo.url}
+                alt=""
+                style={{
+                  width: magnifier.imageWidth,
+                  height: magnifier.imageHeight,
+                  transform: `translate3d(${magnifier.imageX}px, ${magnifier.imageY}px, 0)`,
+                }}
+              />
+            </div>
+          )}
+          {photos.length > 1 && (
+            <div className="t77-pdp-gallery-controls">
+              <button
+                type="button"
+                aria-label="Previous image"
+                onClick={() => changeImage(-1)}
+              >
+                <span className="t77-icon-back">
+                  <ProductIcon name="arrow" />
+                </span>
+              </button>
+              <span aria-live="polite">
+                {String(index + 1).padStart(2, '0')} /{' '}
+                {String(photos.length).padStart(2, '0')}
+              </span>
+              <button
+                type="button"
+                aria-label="Next image"
+                onClick={() => changeImage(1)}
+              >
+                <ProductIcon name="arrow" />
+              </button>
+            </div>
+          )}
         </div>
-      )}
-      <div className="t77-pdp-gallery-caption">
-        <span>A CLOSER LOOK</span>
-        <span className="t77-pdp-gallery-caption-touch">
-          {photos.length > 1 ? 'Swipe or select a view. ' : ''}Tap image to
-          explore.
-        </span>
-        <span className="t77-pdp-gallery-caption-hover">
-          Hover to zoom · Click to expand
-        </span>
       </div>
       <ProductDialog
         open={zoomed}
@@ -345,9 +337,7 @@ export function ProductHeading({
 }) {
   return (
     <header className="t77-pdp-header">
-      <p className="t77-pdp-eyebrow">
-        THREAD77 <span>/</span> {category || 'EVERYDAY EXPRESSION'}
-      </p>
+      {category && <p className="t77-pdp-eyebrow">{category}</p>}
       <h1>{title}</h1>
       <div className="t77-pdp-price">
         {price}

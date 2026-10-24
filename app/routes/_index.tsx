@@ -5,6 +5,8 @@ import {productState} from '~/lib/launch';
 import {isDesignPreview} from '~/lib/designPreview';
 import {previewProducts, previewMoney} from '~/lib/previewProducts';
 import {InteractiveJeansHero} from '~/components/InteractiveJeansHero';
+import {ProductCard} from '~/components/ProductCard';
+import {PreviewCard} from '~/components/PreviewCard';
 import {hangingJeans, jeansViewPreloads, collectionGarments} from '~/data/hangingJeans';
 import jeansHeroStyles from '~/styles/InteractiveJeansHero.css?url';
 import {useScrollReveal} from '~/lib/useScrollReveal';
@@ -121,75 +123,20 @@ export default function Homepage() {
         </div>
       )}
 
-      {/* 4-column bordered product grid (Blurg Village format) */}
-      <section className="t77-blurg-grid-section" aria-label="Products">
-        <div className="t77-blurg-grid" data-reveal-group>
+      {/* Product grid matching /collections/all layout and UI */}
+      <section className="t77-home-products-section" aria-label="Products">
+        <div className="t77-collection-grid" data-reveal-group>
           {nonWomenProducts.length > 0 ? (
-            nonWomenProducts.slice(0, 10).map((product) => {
-              const state = productState(product);
-              const statusBadge =
-                state === 'coming_soon'
-                  ? 'Coming soon'
-                  : state === 'sold_out'
-                    ? 'Sold out'
-                    : null;
-              return (
-                <Link
-                  key={product.id}
-                  to={`/products/${product.handle}`}
-                  prefetch="intent"
-                  className="t77-blurg-card"
-                >
-                  {statusBadge && (
-                    <span className="t77-blurg-card__badge">{statusBadge}</span>
-                  )}
-                  <div className="t77-blurg-card__media">
-                    {product.featuredImage ? (
-                      <Image
-                        data={product.featuredImage}
-                        alt={product.featuredImage.altText || product.title}
-                        loading="lazy"
-                        sizes="(min-width: 1024px) 25vw, (min-width: 768px) 50vw, 50vw"
-                      />
-                    ) : (
-                      <div className="t77-blurg-card__placeholder" />
-                    )}
-                  </div>
-                  <div className="t77-blurg-card__info">
-                    <h3 className="t77-blurg-card__title">{product.title}</h3>
-                    <span className="t77-blurg-card__price">
-                      {state === 'coming_soon' &&
-                      Number(product.priceRange.minVariantPrice.amount) === 0 ? (
-                        'Price at launch'
-                      ) : (
-                        <Money data={product.priceRange.minVariantPrice} />
-                      )}
-                    </span>
-                  </div>
-                </Link>
-              );
-            })
+            nonWomenProducts.map((product, index) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                loading={index < 4 ? 'eager' : 'lazy'}
+              />
+            ))
           ) : preview ? (
-            previewProducts.slice(0, 10).map((item) => (
-              <Link
-                key={item.id}
-                to={`/preview/products/${item.id}`}
-                className="t77-blurg-card"
-              >
-                <div className="t77-blurg-card__media">
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    loading="lazy"
-                  />
-                </div>
-                <div className="t77-blurg-card__info">
-                  <h3 className="t77-blurg-card__title">{item.title}</h3>
-                  <span className="t77-blurg-card__price">
-                    {previewMoney(item.price)}
-                  </span>
-                </div>
-              </Link>
+            previewProducts.map((item, index) => (
+              <PreviewCard key={item.id} index={index} />
             ))
           ) : (
             <div
@@ -241,6 +188,15 @@ const RECOMMENDED_PRODUCTS_QUERY = `#graphql
       width
       height
     }
+    images(first: 2) {
+      nodes {
+        id
+        url
+        altText
+        width
+        height
+      }
+    }
     variants(first: 10) {
       nodes {
         id
@@ -276,7 +232,7 @@ const HOME_SCREEN_QUERY = `#graphql
   query HomeScreen($country: CountryCode, $language: LanguageCode)
     @inContext(country: $country, language: $language) {
     collection(handle: "home-screen") {
-      products(first: 4, sortKey: COLLECTION_DEFAULT) {
+      products(first: 5, sortKey: COLLECTION_DEFAULT) {
         nodes {
           id title handle description availableForSale
           launchStatus: metafield(namespace: "custom", key: "launch_status") { value }

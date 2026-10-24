@@ -1,19 +1,17 @@
 import type {HomeScreenQuery} from 'storefrontapi.generated';
-export type HomeProduct = NonNullable<HomeScreenQuery['collection']>['products']['nodes'][number];
+export type HomeProduct = NonNullable<
+  HomeScreenQuery['collection']
+>['products']['nodes'][number];
 export const JEANS_ANGLES = ['right-side', 'three-quarter', 'front'] as const;
+export const HANGER_POSITIONS = 5;
 
 export type JeansAngle = (typeof JEANS_ANGLES)[number];
 
-/** Pixel coordinates refer to the original, unmodified transparent PNG. */
+/** Render the entire uploaded image, including its hanger. */
 export interface JeansFrame {
   src: string;
   width: number;
   height: number;
-  pivot: {x: number; y: number};
-  /** Distance from the suspension pivot to the lowest hem, in source pixels. */
-  hangingLength: number;
-  /** Hide only the source upper hook where the scene already supplies one. */
-  cropTop: number;
 }
 
 export interface HangingJeans {
@@ -34,56 +32,37 @@ const jeanOneFrames: HangingJeans['frames'] = {
     src: '/products/jean-1/right-transparent.png',
     width: 500,
     height: 935,
-    pivot: {x: 249.5, y: 100},
-    hangingLength: 821,
-    cropTop: 100,
   },
   'three-quarter': {
     src: '/products/jean-1/three-quarter-transparent.png',
     width: 500,
     height: 935,
-    pivot: {x: 251.5, y: 100},
-    hangingLength: 815,
-    cropTop: 100,
   },
   front: {
     src: '/products/jean-1/front-transparent.png',
     width: 500,
     height: 935,
-    pivot: {x: 251, y: 100},
-    hangingLength: 813,
-    cropTop: 100,
   },
 };
 
-/** Match the shortened stem to the scene swivel, with a common hem height. */
-function suppliedFrame(
-  jean: number,
-  view: string,
-  height: number,
-  pivotX: number,
-  hemY: number,
-): JeansFrame {
+function suppliedFrame(jean: number, view: string, height: number): JeansFrame {
   return {
     src: `/products/jean-${jean}/${view}-transparent.png`,
     width: 500,
     height,
-    pivot: {x: pivotX, y: 100},
-    hangingLength: hemY - 100,
-    cropTop: 100,
   };
 }
 
 const jeanTwoFrames: HangingJeans['frames'] = {
-  'right-side': suppliedFrame(2, 'side', 934, 251, 928),
-  'three-quarter': suppliedFrame(2, 'three-quarter', 935, 251.5, 920),
-  front: suppliedFrame(2, 'front', 935, 250, 917),
+  'right-side': suppliedFrame(2, 'side', 934),
+  'three-quarter': suppliedFrame(2, 'three-quarter', 935),
+  front: suppliedFrame(2, 'front', 935),
 };
 
 const jeanThreeFrames: HangingJeans['frames'] = {
-  'right-side': suppliedFrame(3, 'side', 934, 248, 907),
-  'three-quarter': suppliedFrame(3, 'three-quarter', 935, 251.5, 896),
-  front: suppliedFrame(3, 'front', 934, 250, 887),
+  'right-side': suppliedFrame(3, 'side', 934),
+  'three-quarter': suppliedFrame(3, 'three-quarter', 935),
+  front: suppliedFrame(3, 'front', 934),
 };
 
 function previewPosition(position: number): HangingJeans {
@@ -135,23 +114,76 @@ export const jeansViewPreloads = [
   ),
 ].map((href) => ({rel: 'preload', as: 'image', href}));
 
-/** Hanger uploads use the same 500 × 935 canvas and hook pivot as the supplied art. */
+type ProductImage = HomeProduct['images']['nodes'][number];
+
+function imageAngle(image: ProductImage): JeansAngle | undefined {
+  // Explicit alt text takes priority over a filename's angle.
+  for (const label of [
+    image.altText ?? '',
+    image.url.split('?')[0].split('/').pop() ?? '',
+  ]) {
+    if (
+      /(?:^|[-_\s])(?:three[-_\s]?quarter|quarter|3[-_]4)(?:[-_\s.]|$)/i.test(
+        label,
+      )
+    )
+      return 'three-quarter';
+    if (/(?:^|[-_\s])front(?:[-_\s.]|$)/i.test(label)) return 'front';
+    if (/(?:^|[-_\s])(?:side|right)(?:[-_\s.]|$)/i.test(label))
+      return 'right-side';
+  }
+}
+
+/** Prefer named angles; otherwise use the first three uploads in gallery order. */
 export function collectionGarments(products: HomeProduct[]): HangingJeans[] {
   return products.map((product) => {
-    const images = product.images.nodes;
-    const front = images.find((image) => image.altText?.trim().toLowerCase() === 'hanger-front') ?? images[0];
-    const frame = (tag: string): JeansFrame => {
-      const image = images.find((item) => item.altText?.trim().toLowerCase() === tag) ?? front;
-      const prepared = image?.altText?.trim().toLowerCase().startsWith('hanger-');
+    const images = [
+      ...new Map(
+        product.images.nodes.map((image) => [image.url, image]),
+      ).values(),
+    ];
+    const named = (angle: JeansAngle) =>
+      images.find((image) => imageAngle(image) === angle);
+    const unlabelled = images.filter((image) => !imageAngle(image)).slice(0, 3);
+    const side =
+      named('right-side') ??
+      unlabelled[0] ??
+      named('three-quarter') ??
+      images[0];
+    const front =
+      named('front') ??
+      unlabelled.filter((image) => image !== side).at(-1) ??
+      named('three-quarter') ??
+      side;
+    const middle =
+      named('three-quarter') ??
+      unlabelled.find((image) => image !== side && image !== front) ??
+      side;
+    const frame = (image: ProductImage | undefined): JeansFrame => {
       const width = image?.width || 500;
       const height = image?.height || 935;
-      return {src: image?.url || '/favicon.svg', width, height,
-        pivot: {x: width / 2, y: prepared ? height * 100 / 935 : 0},
-        hangingLength: prepared ? height * 821 / 935 : height,
-        cropTop: prepared ? height * 100 / 935 : 0};
+      return {src: image?.url || '/favicon.svg', width, height};
     };
-    return {id: product.id, title: product.title, description: product.description,
-      productUrl: `/products/${product.handle}`, product,
-      frames: {'right-side': frame('hanger-side'), 'three-quarter': frame('hanger-three-quarter'), front: frame('hanger-front')}};
+    return {
+      id: product.id,
+      title: product.title,
+      description: product.description,
+      productUrl: `/products/${product.handle}`,
+      product,
+      frames: {
+        'right-side': frame(side),
+        'three-quarter': frame(middle),
+        front: frame(front),
+      },
+    };
   });
+}
+
+/** Repeat the collection in order to fill the rail without duplicating products in Shopify. */
+export function fillJeansRail(garments: JeansRail): HangingJeans[] {
+  if (!garments.length) return [];
+  return Array.from(
+    {length: HANGER_POSITIONS},
+    (_, position) => garments[position % garments.length],
+  );
 }

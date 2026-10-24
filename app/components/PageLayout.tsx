@@ -16,6 +16,7 @@ import {
 import {SearchResultsPredictive} from '~/components/SearchResultsPredictive';
 
 import {MobileBottomNav} from '~/components/MobileBottomNav';
+import {useScrollReveal} from '~/hooks/useScrollReveal';
 
 interface PageLayoutProps {
   cart: Promise<CartApiQueryFragment | null>;
@@ -34,6 +35,8 @@ export function PageLayout({
   isLoggedIn,
   publicStoreDomain,
 }: PageLayoutProps) {
+  useScrollReveal();
+
   return (
     <Aside.Provider>
       <CartAside cart={cart} />

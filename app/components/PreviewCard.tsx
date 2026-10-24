@@ -13,7 +13,18 @@ export function PreviewCard({index}: {index: number}) {
             loading="lazy"
             width="600"
             height="780"
+            className="t77-preview-card__image--front"
           />
+          {item.secondaryImage ? (
+            <img
+              src={item.secondaryImage}
+              alt={item.title}
+              loading="lazy"
+              width="600"
+              height="780"
+              className="t77-preview-card__image--back"
+            />
+          ) : null}
         </Link>
         <span>{item.compareAtPrice ? 'Sale · Sample' : 'Test product'}</span>
         <details className="t77-preview-options">

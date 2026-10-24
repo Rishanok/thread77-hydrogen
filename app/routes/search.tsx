@@ -14,7 +14,7 @@ import type {
 } from 'storefrontapi.generated';
 
 export const meta: Route.MetaFunction = () => {
-  return [{title: `Hydrogen | Search`}];
+  return [{title: `Thread77 | Search`}];
 };
 
 export async function loader({request, context}: Route.LoaderArgs) {
@@ -45,17 +45,16 @@ export default function SearchPage() {
       <h1>Search</h1>
       <SearchForm>
         {({inputRef}) => (
-          <>
+          <div className="search-input-group">
             <input
               defaultValue={term}
               name="q"
-              placeholder="Search…"
+              placeholder="Search products, tees, jeans…"
               ref={inputRef}
               type="search"
             />
-            &nbsp;
             <button type="submit">Search</button>
-          </>
+          </div>
         )}
       </SearchForm>
       {error && <p style={{color: 'red'}}>{error}</p>}

@@ -3,6 +3,7 @@ import {Await, Link} from 'react-router';
 import type {FooterQuery, HeaderQuery} from 'storefrontapi.generated';
 import {storefrontMenuUrl} from '~/lib/menu';
 import {useScrollReveal} from '~/lib/useScrollReveal';
+import thread77Logo from '~/assets/thread77-logo.webp';
 
 export function Footer({
   footer,
@@ -37,7 +38,13 @@ export function Footer({
       <div className="t77-footer-inner" data-reveal-group>
         <div className="t77-footer-brand">
           <Link to="/" className="t77-footer-logo" aria-label="Thread77 home">
-            THREAD 77
+            <img
+              src={thread77Logo}
+              alt="Thread77"
+              className="t77-footer-logo__img"
+              width={140}
+              height={47}
+            />
           </Link>
           <p className="t77-footer-desc">
             Your everyday, reimagined. Premium denim, relaxed essentials, and elevated streetwear built for continuous motion.

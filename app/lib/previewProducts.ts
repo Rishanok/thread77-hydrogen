@@ -1,9 +1,15 @@
 import {homePreview} from '../data/homePreview';
+import {SCRAPED_PRODUCTS} from '../data/scrapedProducts';
 
 export const previewProducts = homePreview.map((item, index) => {
   const jeans = /jeans/i.test(item.title);
+  const catalogProduct = SCRAPED_PRODUCTS.find(
+    (s) => s.featuredImage?.url === item.image || s.title === item.title,
+  );
+  const secondaryImage = catalogProduct?.secondaryImage?.url || null;
   return {
     ...item,
+    secondaryImage,
     id: String(index),
     price: jeans ? 1999 : 999,
     compareAtPrice: index % 3 === 0 ? (jeans ? 2499 : 1499) : null,
