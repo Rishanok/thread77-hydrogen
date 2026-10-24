@@ -9,3 +9,5 @@ dist/
 *.tsbuildinfo
 h2_deploy_log.json
 .DS_Store
+.vercel
+.env*.local

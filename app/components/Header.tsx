@@ -10,6 +10,7 @@ import {
 import type {HeaderQuery, CartApiQueryFragment} from 'storefrontapi.generated';
 import {storefrontMenuUrl} from '~/lib/menu';
 import {useAside} from '~/components/Aside';
+import thread77Logo from '~/assets/thread77-logo.webp';
 
 interface HeaderProps {
   header: HeaderQuery;
@@ -111,7 +112,13 @@ export function Header({
           className="t77-hero-logo__link"
           aria-label="Thread77 Home"
         >
-          <span className="t77-hero-logo__text">THREAD 77</span>
+          <img
+            src={thread77Logo}
+            alt="Thread77"
+            className="t77-hero-logo__img"
+            width={120}
+            height={40}
+          />
         </NavLink>
       </div>
 

@@ -11,11 +11,14 @@
     "lint": "eslint --no-error-on-unmatched-pattern .",
     "typecheck": "react-router typegen && tsc --noEmit",
     "codegen": "shopify hydrogen codegen && react-router typegen",
+    "shopify:catalog:sync": "node scripts/publish_catalog_to_hydrogen.mjs",
     "test": "node --test tests/*.test.mjs"
   },
   "prettier": "@shopify/prettier-config",
   "dependencies": {
+    "@mjackson/node-fetch-server": "^0.7.0",
     "@shopify/hydrogen": "2025.7.0",
+    "@vercel/functions": "^3.10.2",
     "graphql": "^16.10.0",
     "graphql-tag": "^2.12.6",
     "isbot": "^5.1.22",

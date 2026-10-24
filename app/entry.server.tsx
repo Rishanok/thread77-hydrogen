@@ -6,6 +6,7 @@ import {
   type HydrogenRouterContextProvider,
 } from '@shopify/hydrogen';
 import type {EntryContext} from 'react-router';
+import {createSafeSignal, wrapStreamWithCompletion} from '../lib/hydrogen-vercel/safe-abort';
 
 export default async function handleRequest(
   request: Request,
@@ -35,6 +36,8 @@ export default async function handleRequest(
     ],
   });
 
+  const {signal, markComplete} = createSafeSignal(request.signal);
+
   const body = await renderToReadableStream(
     <NonceProvider>
       <ServerRouter
@@ -45,7 +48,7 @@ export default async function handleRequest(
     </NonceProvider>,
     {
       nonce,
-      signal: request.signal,
+      signal,
       onError(error) {
         console.error(error);
         responseStatusCode = 500;
@@ -57,10 +60,12 @@ export default async function handleRequest(
     await body.allReady;
   }
 
+  const safeBody = wrapStreamWithCompletion(body, markComplete);
+
   responseHeaders.set('Content-Type', 'text/html');
   responseHeaders.set('Content-Security-Policy', header);
 
-  return new Response(body, {
+  return new Response(safeBody, {
     headers: responseHeaders,
     status: responseStatusCode,
   });

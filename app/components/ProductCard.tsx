@@ -45,6 +45,13 @@ export function ProductCard({
           : badge;
   const variantUrl = useVariantUrl(product.handle);
   const image = product.featuredImage;
+  const productImages = (product as any).images?.nodes;
+  const secondImage =
+    (productImages &&
+      productImages.find((img: any) => img?.url && img.url !== image?.url)) ||
+    productImages?.[1] ||
+    (product as any).secondaryImage ||
+    null;
   const [showQuickAdd, setShowQuickAdd] = useState(false);
   const variants = product.variants?.nodes || [];
 
@@ -76,6 +83,17 @@ export function ProductCard({
               }}
             />
           )}
+
+          {secondImage?.url ? (
+            <Image
+              alt={secondImage.altText || product.title}
+              aspectRatio="1/1.30"
+              data={secondImage}
+              loading="lazy"
+              className="t77-card__image t77-card__image--back"
+              sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
+            />
+          ) : null}
         </Link>
 
         {/* Floating Quick Add '+' Button */}

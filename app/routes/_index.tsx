@@ -5,7 +5,9 @@ import {productState} from '~/lib/launch';
 import {isDesignPreview} from '~/lib/designPreview';
 import {previewProducts, previewMoney} from '~/lib/previewProducts';
 import {InteractiveJeansHero} from '~/components/InteractiveJeansHero';
-import {hangingJeans, jeansViewPreloads} from '~/data/hangingJeans';
+import {ProductCard} from '~/components/ProductCard';
+import {PreviewCard} from '~/components/PreviewCard';
+import {hangingJeans, jeansViewPreloads, collectionGarments} from '~/data/hangingJeans';
 import jeansHeroStyles from '~/styles/InteractiveJeansHero.css?url';
 import {useScrollReveal} from '~/lib/useScrollReveal';
 
@@ -26,22 +28,25 @@ export const meta: Route.MetaFunction = ({data}) => [
 
 export async function loader({context, request}: Route.LoaderArgs) {
   const preview = isDesignPreview(request);
+  const homeResult = await context.storefront.query(HOME_SCREEN_QUERY).catch(() => null);
+  const homeProducts = homeResult?.collection?.products.nodes ?? [];
   try {
     const result = await context.storefront.query(RECOMMENDED_PRODUCTS_QUERY);
     return {
+      homeProducts,
       products: result.products.nodes,
       collections: result.collections.nodes,
       catalogueUnavailable: false,
       preview: preview && result.products.nodes.length === 0,
     };
   } catch {
-    return {products: [], collections: [], catalogueUnavailable: true, preview};
+    return {homeProducts, products: [], collections: [], catalogueUnavailable: true, preview};
   }
 }
 
 export default function Homepage() {
   const revealRef = useScrollReveal<HTMLDivElement>();
-  const {products, collections, catalogueUnavailable, preview} =
+  const {products, collections, catalogueUnavailable, preview, homeProducts} =
     useLoaderData<typeof loader>();
   const isWomen = (str?: string | null) =>
     Boolean(str && /wom[ae]n|female|dress|skirt|leggings/i.test(str));
@@ -90,7 +95,7 @@ export default function Homepage() {
   return (
     <div className="t77-editorial-home" ref={revealRef}>
       <InteractiveJeansHero
-        garments={hangingJeans}
+        garments={homeProducts.length ? collectionGarments(homeProducts) : hangingJeans}
         navigation={
           <nav
             className="t77-editorial-category-nav"
@@ -118,75 +123,20 @@ export default function Homepage() {
         </div>
       )}
 
-      {/* 4-column bordered product grid (Blurg Village format) */}
-      <section className="t77-blurg-grid-section" aria-label="Products">
-        <div className="t77-blurg-grid" data-reveal-group>
+      {/* Product grid matching /collections/all layout and UI */}
+      <section className="t77-home-products-section" aria-label="Products">
+        <div className="t77-collection-grid" data-reveal-group>
           {nonWomenProducts.length > 0 ? (
-            nonWomenProducts.slice(0, 10).map((product) => {
-              const state = productState(product);
-              const statusBadge =
-                state === 'coming_soon'
-                  ? 'Coming soon'
-                  : state === 'sold_out'
-                    ? 'Sold out'
-                    : null;
-              return (
-                <Link
-                  key={product.id}
-                  to={`/products/${product.handle}`}
-                  prefetch="intent"
-                  className="t77-blurg-card"
-                >
-                  {statusBadge && (
-                    <span className="t77-blurg-card__badge">{statusBadge}</span>
-                  )}
-                  <div className="t77-blurg-card__media">
-                    {product.featuredImage ? (
-                      <Image
-                        data={product.featuredImage}
-                        alt={product.featuredImage.altText || product.title}
-                        loading="lazy"
-                        sizes="(min-width: 1024px) 25vw, (min-width: 768px) 50vw, 50vw"
-                      />
-                    ) : (
-                      <div className="t77-blurg-card__placeholder" />
-                    )}
-                  </div>
-                  <div className="t77-blurg-card__info">
-                    <h3 className="t77-blurg-card__title">{product.title}</h3>
-                    <span className="t77-blurg-card__price">
-                      {state === 'coming_soon' &&
-                      Number(product.priceRange.minVariantPrice.amount) === 0 ? (
-                        'Price at launch'
-                      ) : (
-                        <Money data={product.priceRange.minVariantPrice} />
-                      )}
-                    </span>
-                  </div>
-                </Link>
-              );
-            })
+            nonWomenProducts.map((product, index) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                loading={index < 4 ? 'eager' : 'lazy'}
+              />
+            ))
           ) : preview ? (
-            previewProducts.slice(0, 10).map((item) => (
-              <Link
-                key={item.id}
-                to={`/preview/products/${item.id}`}
-                className="t77-blurg-card"
-              >
-                <div className="t77-blurg-card__media">
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    loading="lazy"
-                  />
-                </div>
-                <div className="t77-blurg-card__info">
-                  <h3 className="t77-blurg-card__title">{item.title}</h3>
-                  <span className="t77-blurg-card__price">
-                    {previewMoney(item.price)}
-                  </span>
-                </div>
-              </Link>
+            previewProducts.map((item, index) => (
+              <PreviewCard key={item.id} index={index} />
             ))
           ) : (
             <div
@@ -196,8 +146,6 @@ export default function Homepage() {
                 gridColumn: '1 / -1',
                 padding: '64px 24px',
                 textAlign: 'center',
-                borderRight: '2px solid #000',
-                borderBottom: '2px solid #000',
               }}
             >
               <h3>
@@ -215,23 +163,6 @@ export default function Homepage() {
           )}
         </div>
       </section>
-      <nav className="t77-editorial-service" aria-label="Customer information" data-reveal-group>
-        <Link to="/policies/shipping-policy">
-          <span className="t77-service-index" aria-hidden="true">01</span>
-          <div><h3>On its way.</h3><p>Shipping & delivery</p></div>
-          <span className="t77-service-arrow" aria-hidden="true">↗</span>
-        </Link>
-        <Link to="/policies/refund-policy">
-          <span className="t77-service-index" aria-hidden="true">02</span>
-          <div><h3>A change of mind?</h3><p>Read our returns policy</p></div>
-          <span className="t77-service-arrow" aria-hidden="true">↗</span>
-        </Link>
-        <Link to="/account">
-          <span className="t77-service-index" aria-hidden="true">03</span>
-          <div><h3>Your space.</h3><p>Orders & account details</p></div>
-          <span className="t77-service-arrow" aria-hidden="true">↗</span>
-        </Link>
-      </nav>
     </div>
   );
 }
@@ -256,6 +187,15 @@ const RECOMMENDED_PRODUCTS_QUERY = `#graphql
       altText
       width
       height
+    }
+    images(first: 2) {
+      nodes {
+        id
+        url
+        altText
+        width
+        height
+      }
     }
     variants(first: 10) {
       nodes {
@@ -283,6 +223,30 @@ const RECOMMENDED_PRODUCTS_QUERY = `#graphql
     products(first: 48, sortKey: CREATED_AT, reverse: true) {
       nodes {
         ...RecommendedProduct
+      }
+    }
+  }
+` as const;
+
+const HOME_SCREEN_QUERY = `#graphql
+  query HomeScreen($country: CountryCode, $language: LanguageCode)
+    @inContext(country: $country, language: $language) {
+    collection(handle: "home-screen") {
+      products(first: 5, sortKey: COLLECTION_DEFAULT) {
+        nodes {
+          id title handle description availableForSale
+          launchStatus: metafield(namespace: "custom", key: "launch_status") { value }
+          images(first: 50) { nodes { url altText width height } }
+          variants(first: 250) {
+            pageInfo { hasNextPage }
+            nodes {
+              id title availableForSale
+              selectedOptions { name value }
+              image { url altText width height }
+              price { amount currencyCode }
+            }
+          }
+        }
       }
     }
   }

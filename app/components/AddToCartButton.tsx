@@ -10,11 +10,15 @@ type Props = {
   lines: Array<OptimisticCartLineInput>;
   onSuccess?: () => void;
   className?: string;
+  onChooseOption?: () => void;
 };
 
 export function AddToCartButton(props: Props) {
   return (
     <CartForm
+      key={props.lines
+        .map((line) => `${line.merchandiseId}:${line.quantity}`)
+        .join('|')}
       route="/cart"
       inputs={{lines: props.lines}}
       action={CartForm.ACTIONS.LinesAdd}
@@ -32,6 +36,7 @@ function SubmitButton({
   lines,
   onSuccess,
   className,
+  onChooseOption,
 }: Props & {
   fetcher: FetcherWithComponents<CartResult>;
 }) {
@@ -64,7 +69,13 @@ function SubmitButton({
       >
         {fetcher.state !== 'idle' ? 'Adding…' : children}
       </button>
-      {fetcher.state === 'idle' && <CartFeedback result={fetcher.data} />}
+      {fetcher.state === 'idle' && (
+        <CartFeedback
+          result={fetcher.data}
+          context="add"
+          onChooseOption={onChooseOption}
+        />
+      )}
     </>
   );
 }

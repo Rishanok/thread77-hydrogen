@@ -1,7 +1,9 @@
+import {HangerProductDialog} from './HangerProductDialog';
 import {memo, useCallback, useEffect, useId, useRef, useState} from 'react';
-import type {CSSProperties, ReactNode} from 'react';
-import {Link} from 'react-router';
-import {JEANS_ANGLES} from '~/data/hangingJeans';
+import type {CSSProperties, PointerEvent, ReactNode} from 'react';
+import {hangerOffset} from '~/lib/hangerMotion';
+import {useHangerMotion} from '~/lib/useHangerMotion';
+import {fillJeansRail, JEANS_ANGLES} from '~/data/hangingJeans';
 import type {
   HangingJeans,
   JeansAngle,
@@ -15,7 +17,7 @@ const ANGLE_NAMES: Record<JeansAngle, string> = {
   front: 'Front',
 };
 
-// Shared promises also deduplicate the remaining Jean 1 preview instance.
+// Repeated rail positions share decoded product images.
 const decodedFrames = new Map<string, Promise<boolean>>();
 function decodeFrame(src: string) {
   const cached = decodedFrames.get(src);
@@ -33,14 +35,14 @@ function decodeFrame(src: string) {
   return promise;
 }
 
-/** A common 440 × 700 stage, with the pivot at (220, 0) and hem at y=644. */
+/** Align the complete image with the rail and leave space below for its shadow. */
 function frameStyle(frame: JeansFrame): CSSProperties {
-  const scale = 644 / frame.hangingLength;
+  const scale = 644 / frame.height;
+  const width = ((frame.width * scale) / 440) * 100;
   return {
-    width: `${((frame.width * scale) / 440) * 100}%`,
-    left: `${50 - ((frame.pivot.x * scale) / 440) * 100}%`,
-    top: `${((-frame.pivot.y * scale) / 700) * 100}%`,
-    clipPath: `inset(${(frame.cropTop / frame.height) * 100}% 0 0)`,
+    width: `${width}%`,
+    left: `${50 - width / 2}%`,
+    top: 0,
   };
 }
 
@@ -57,29 +59,6 @@ function useReducedMotion() {
   return reduced;
 }
 
-function FixedHook() {
-  return (
-    <svg
-      className="jeans-hero__hook"
-      viewBox="0 0 32 36"
-      fill="none"
-      aria-hidden="true"
-    >
-      <path
-        d="M7 19C-2 7 8-2 18 2C28 6 28 17 21 23L16 28V35"
-        stroke="#131513"
-        strokeWidth="4"
-      />
-      <path
-        d="M7 19C-2 7 8-2 18 2C28 6 28 17 21 23L16 28V35"
-        stroke="#b4b8b5"
-        strokeWidth="2"
-      />
-      <path d="M8 16C3 7 10 1 17 4" stroke="#f3f3eb" strokeWidth="1" />
-    </svg>
-  );
-}
-
 type Interaction = 'idle' | 'hover' | 'manual';
 
 const HangingJeansItem = memo(function HangingJeansItem({
@@ -87,13 +66,19 @@ const HangingJeansItem = memo(function HangingJeansItem({
   position,
   reducedMotion,
   activePosition,
+  hovered,
+  inViewer,
   onActivate,
   onRelease,
+  onSelect,
 }: {
+  onSelect: (position: number) => void;
   garment: HangingJeans;
   position: number;
   reducedMotion: boolean;
   activePosition: number | null;
+  hovered: boolean;
+  inViewer: boolean;
   onActivate: (position: number) => void;
   onRelease: (position: number) => void;
 }) {
@@ -104,9 +89,18 @@ const HangingJeansItem = memo(function HangingJeansItem({
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
   const pointerType = useRef('mouse');
+  const views = JEANS_ANGLES.filter(
+    (view, index) =>
+      JEANS_ANGLES.findIndex(
+        (candidate) =>
+          garment.frames[candidate].src === garment.frames[view].src,
+      ) === index,
+  );
 
   useEffect(() => {
     let active = true;
+    setReady(false);
+    setFailed(false);
     // All three frames preload/decode together, before the first interaction.
     void Promise.all(
       JEANS_ANGLES.map((view) => decodeFrame(garment.frames[view].src)),
@@ -132,6 +126,16 @@ const HangingJeansItem = memo(function HangingJeansItem({
   }, [activePosition, position, reset]);
 
   useEffect(() => {
+    if (hovered || inViewer) {
+      setInteraction('hover');
+      setAngle('front');
+    } else {
+      setInteraction((current) => (current === 'hover' ? 'idle' : current));
+      setAngle('right-side');
+    }
+  }, [hovered, inViewer]);
+
+  useEffect(() => {
     const resetHidden = () => {
       if (document.hidden) reset();
     };
@@ -144,20 +148,35 @@ const HangingJeansItem = memo(function HangingJeansItem({
     setSelected(true);
     setInteraction('manual');
     setAngle((current) => {
-      const next =
-        (JEANS_ANGLES.indexOf(current) + direction + JEANS_ANGLES.length) %
-        JEANS_ANGLES.length;
-      return JEANS_ANGLES[next];
+      const currentView = views.findIndex(
+        (view) => garment.frames[view].src === garment.frames[current].src,
+      );
+      const next = (currentView + direction + views.length) % views.length;
+      return views[next];
     });
   }
 
   const visibleAngle = ready ? angle : 'right-side';
-  const reveal = JEANS_ANGLES.indexOf(visibleAngle) / 2;
+  const visibleIndex = views.findIndex(
+    (view) => garment.frames[view].src === garment.frames[visibleAngle].src,
+  );
+  const reveal = views.length > 1 ? visibleIndex / (views.length - 1) : 0;
+  const motionRef = useHangerMotion({
+    reveal,
+    offset: hangerOffset(position, activePosition),
+    active: selected || hovered,
+    reducedMotion,
+    position,
+    paused: inViewer || !ready,
+    views: views.length,
+  });
 
   return (
     <li
       className="jeans-hero__item"
       data-garment={garment.id}
+      data-position={position}
+      data-in-viewer={inViewer}
       data-angle={visibleAngle}
       data-ready={ready}
       data-interaction={interaction}
@@ -165,32 +184,27 @@ const HangingJeansItem = memo(function HangingJeansItem({
       style={
         {
           '--entrance-order': position,
-          '--closet-direction':
-            activePosition === null ? 0 : Math.sign(position - activePosition),
+          zIndex: hovered || selected ? 10 : 5 - position,
         } as CSSProperties
       }
-      onPointerEnter={(event) => {
-        if (event.pointerType !== 'mouse' || reducedMotion) return;
-        onActivate(position);
-        setInteraction('hover');
-        setAngle('front');
-      }}
-      onPointerLeave={(event) => {
-        if (event.pointerType === 'mouse') reset();
-      }}
       onFocus={() => onActivate(position)}
       onBlur={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget)) reset();
+        if (
+          !inViewer &&
+          !hovered &&
+          !event.currentTarget.contains(event.relatedTarget)
+        )
+          reset();
       }}
     >
-      <span className="jeans-hero__suspension" aria-hidden="true">
-        <FixedHook />
-        <span className="jeans-hero__swivel" />
-      </span>
       <button
         type="button"
         className="jeans-hero__inspect"
-        aria-label={`Turn ${garment.title}. Current view: ${ANGLE_NAMES[visibleAngle]}.`}
+        aria-label={
+          garment.product
+            ? `Shop ${garment.title}`
+            : `Turn ${garment.title}. Current view: ${ANGLE_NAMES[visibleAngle]}.`
+        }
         aria-describedby={`${id}-description ${id}-instructions`}
         aria-pressed={selected}
         aria-busy={!ready && !failed}
@@ -198,6 +212,10 @@ const HangingJeansItem = memo(function HangingJeansItem({
           pointerType.current = event.pointerType;
         }}
         onClick={(event) => {
+          if (garment.product) {
+            onSelect(position);
+            return;
+          }
           if (
             event.detail !== 0 &&
             pointerType.current === 'touch' &&
@@ -220,44 +238,69 @@ const HangingJeansItem = memo(function HangingJeansItem({
           }
         }}
       >
-        <span className="jeans-hero__assembly" aria-hidden="true">
-          <span
-            className="jeans-hero__views"
-            style={{'--jeans-reveal': reveal} as CSSProperties}
-          >
-            <span className="jeans-hero__shadow" />
-            {JEANS_ANGLES.map((view) => {
-              const frame = garment.frames[view];
-              return (
-                <img
-                  key={view}
-                  className="jeans-hero__frame"
-                  data-view={view}
-                  src={frame.src}
-                  width={frame.width}
-                  height={frame.height}
-                  style={frameStyle(frame)}
-                  alt=""
-                  decoding="async"
-                  loading="eager"
-                  draggable={false}
-                />
-              );
-            })}
+        <span
+          ref={motionRef}
+          className="jeans-hero__assembly"
+          aria-hidden="true"
+        >
+          <span className="jeans-hero__shadow" />
+          <span className="jeans-hero__lighting">
+            <span className="jeans-hero__views" data-view-count={views.length}>
+              {JEANS_ANGLES.map((view) => {
+                const frame = garment.frames[view];
+                return (
+                  <span
+                    key={view}
+                    className="jeans-hero__frame"
+                    data-view={view}
+                    style={{
+                      ...frameStyle(frame),
+                      aspectRatio: `${frame.width} / ${frame.height}`,
+                    }}
+                  >
+                    <img
+                      className="jeans-hero__hook-image"
+                      src={frame.src}
+                      width={frame.width}
+                      height={frame.height}
+                      alt=""
+                      decoding="async"
+                      loading="eager"
+                      draggable={false}
+                    />
+                    <img
+                      className="jeans-hero__cloth-image"
+                      src={frame.src}
+                      width={frame.width}
+                      height={frame.height}
+                      alt=""
+                      decoding="async"
+                      loading="eager"
+                      draggable={false}
+                    />
+                  </span>
+                );
+              })}
+            </span>
           </span>
         </span>
       </button>
-      {garment.productUrl && (
-        <Link className="jeans-hero__product-link" to={garment.productUrl}>
+      {garment.product && (
+        <button
+          type="button"
+          className="jeans-hero__product-link"
+          onClick={() => onSelect(position)}
+        >
           {garment.title} ↗
-        </Link>
+        </button>
       )}
       <span id={`${id}-description`} className="jeans-hero__sr-only">
         {garment.description}
       </span>
       <span id={`${id}-instructions`} className="jeans-hero__sr-only">
-        Press Enter or Space for the next view, or use the left and right arrow
-        keys. Press Escape or Home to return to the right side.
+        {garment.product
+          ? 'Hover to turn, or use the left and right arrow keys. Press Enter or Space to view product details and choose your size.'
+          : 'Press Enter or Space for the next view, or use the left and right arrow keys. Press Escape or Home to return to the right side.'}
       </span>
       <span
         className="jeans-hero__sr-only"
@@ -282,6 +325,17 @@ export function InteractiveJeansHero({
   garments: JeansRail;
   navigation?: ReactNode;
 }) {
+  const [selectedPosition, setSelectedPosition] = useState<number | null>(null);
+  const [hoveredPosition, setHoveredPosition] = useState<number | null>(null);
+  const installation = useRef<HTMLDivElement>(null);
+  const openingOrigin = useRef<DOMRect | null>(null);
+  const rail = fillJeansRail(garments);
+  const selectedGarment =
+    selectedPosition === null ? null : rail[selectedPosition];
+  const products = garments.filter((garment) => garment.product);
+  const productIndex = products.findIndex(
+    (garment) => garment.id === selectedGarment?.id,
+  );
   const id = useId();
   const reducedMotion = useReducedMotion();
   const [activePosition, setActivePosition] = useState<number | null>(null);
@@ -292,39 +346,161 @@ export function InteractiveJeansHero({
   const release = useCallback((position: number) => {
     setActivePosition((current) => (current === position ? null : current));
   }, []);
+
+  function imageBounds(position: number) {
+    const item = installation.current?.querySelector<HTMLElement>(
+      `[data-position="${position}"]`,
+    );
+    return (
+      item
+        ?.querySelector(`[data-view="${item.dataset.angle}"]`)
+        ?.getBoundingClientRect() ?? null
+    );
+  }
+  function select(position: number) {
+    if (!rail[position]?.product) return;
+    openingOrigin.current = imageBounds(position);
+    setHoveredPosition(position);
+    setActivePosition(position);
+    setSelectedPosition(position);
+  }
+  function hover(event: PointerEvent<HTMLDivElement>) {
+    if (event.pointerType === 'touch' || selectedPosition !== null) return;
+    const items = [
+      ...event.currentTarget.querySelectorAll<HTMLElement>(
+        '.jeans-hero__inspect',
+      ),
+    ];
+    const stage = event.currentTarget
+      .querySelector('.jeans-hero__assembly')
+      ?.getBoundingClientRect();
+    if (!stage || !items.length) return;
+    const bounds = items.map((item) => item.getBoundingClientRect());
+    const first = bounds[0];
+    if (event.clientY < first.top - 12 || event.clientY > first.bottom) {
+      setHoveredPosition(null);
+      setActivePosition(null);
+      return;
+    }
+    const centers = bounds.map((bound) => bound.left + bound.width / 2);
+    // Keep the chosen piece while moving across its wider front view.
+    if (
+      hoveredPosition !== null &&
+      Math.abs(event.clientX - centers[hoveredPosition]) < stage.width * 0.36
+    )
+      return;
+    const closest = centers.reduce(
+      (best, center, index) =>
+        Math.abs(center - event.clientX) <
+        Math.abs(centers[best] - event.clientX)
+          ? index
+          : best,
+      0,
+    );
+    const next =
+      Math.abs(event.clientX - centers[closest]) <= stage.width * 0.24
+        ? closest
+        : null;
+    setHoveredPosition(next);
+    setActivePosition(next);
+  }
   return (
     <section className="jeans-hero" aria-labelledby={`${id}-title`}>
       <header className="jeans-hero__heading">
-        <div className="jeans-hero__edition">
-          <span>THREAD77 — THE DENIM EDIT</span>
-          <span>01 / EVERYDAY UNIFORM</span>
-        </div>
         <div className="jeans-hero__headline">
           <h1 id={`${id}-title`}>
             Denim, <em>in motion.</em>
           </h1>
-          <p>A new perspective on your everyday uniform.</p>
         </div>
       </header>
-      <div className="jeans-hero__installation">
+      <div
+        ref={installation}
+        className="jeans-hero__installation"
+        onPointerMove={hover}
+        onPointerLeave={() => {
+          if (selectedPosition !== null) return;
+          setHoveredPosition(null);
+          setActivePosition(null);
+        }}
+        onClickCapture={(event) => {
+          const targetInspect = (event.target as HTMLElement).closest<HTMLElement>(
+            '.jeans-hero__inspect',
+          );
+          if (targetInspect) {
+            const itemEl = targetInspect.closest<HTMLElement>('[data-position]');
+            const clickedPos =
+              itemEl && itemEl.dataset.position !== undefined
+                ? Number(itemEl.dataset.position)
+                : null;
+            if (clickedPos !== null && !isNaN(clickedPos)) {
+              event.stopPropagation();
+              select(clickedPos);
+              return;
+            }
+          }
+          if (
+            event.detail > 0 &&
+            hoveredPosition !== null &&
+            (event.target as HTMLElement).closest('.jeans-hero__inspect')
+          ) {
+            event.stopPropagation();
+            select(hoveredPosition);
+          }
+        }}
+      >
         <div className="jeans-hero__rail" aria-hidden="true" />
         <ol
           className="jeans-hero__garments"
-          aria-label="Four hanging denim studies"
+          aria-label="Shop the hanging collection"
         >
-          {garments.map((garment, position) => (
+          {rail.map((garment, position) => (
             <HangingJeansItem
-              key={garment.id}
+              // eslint-disable-next-line react/no-array-index-key -- Each fixed rail position owns independent rotation state, including repeated products.
+              key={`${garment.id}-${position}`}
               garment={garment}
               position={position}
               reducedMotion={reducedMotion}
-              activePosition={activePosition}
+              activePosition={selectedPosition ?? activePosition}
+              hovered={(selectedPosition ?? hoveredPosition) === position}
+              inViewer={selectedPosition === position}
               onActivate={activate}
               onRelease={release}
+              onSelect={select}
             />
           ))}
         </ol>
       </div>
+      {selectedGarment?.product && (
+        <HangerProductDialog
+          product={selectedGarment.product}
+          initialImageUrl={selectedGarment.frames.front.src}
+          origin={openingOrigin.current}
+          getOrigin={() =>
+            selectedPosition === null ? null : imageBounds(selectedPosition)
+          }
+          getOpener={() =>
+            installation.current?.querySelector<HTMLButtonElement>(
+              `[data-position="${selectedPosition}"] .jeans-hero__inspect`,
+            ) ?? null
+          }
+          productIndex={productIndex}
+          productCount={products.length}
+          onNavigate={(direction) => {
+            const next =
+              products[
+                (productIndex + direction + products.length) % products.length
+              ];
+            setSelectedPosition(
+              rail.findIndex((garment) => garment.id === next.id),
+            );
+          }}
+          onClose={() => {
+            setHoveredPosition(null);
+            setActivePosition(null);
+            setSelectedPosition(null);
+          }}
+        />
+      )}
       {navigation && <div className="jeans-hero__navigation">{navigation}</div>}
     </section>
   );
