@@ -3,7 +3,22 @@ import {dirname} from 'node:path';
 process.loadEnvFile('.env.oxygen.local');
 const token = process.env.SHOPIFY_HYDROGEN_DEPLOYMENT_TOKEN;
 if (!token) throw new Error('Oxygen deployment token is missing.');
-const child = spawn('npx', ['shopify', 'hydrogen', 'deploy', '--preview', '--force', '--env-file', '.env', '--metadata-description', 'Thread77 editorial storefront: collections, product pages and test-shopping preview'], {
+const isProduction = process.argv.includes('--production') || process.argv.includes('--prod');
+const deployArgs = [
+  'shopify',
+  'hydrogen',
+  'deploy',
+  ...(isProduction ? [] : ['--preview']),
+  '--force',
+  '--env-file',
+  '.env',
+  '--metadata-description',
+  isProduction
+    ? 'Thread77 production storefront: collections, product pages and interactive hero'
+    : 'Thread77 preview storefront: collections, product pages and interactive hero',
+];
+
+const child = spawn('npx', deployArgs, {
   env: {...process.env, CI: 'true', SHOPIFY_CLI_NO_ANALYTICS: '1', GIT_CEILING_DIRECTORIES: dirname(process.cwd())},
   stdio: ['ignore', 'pipe', 'pipe'],
 });

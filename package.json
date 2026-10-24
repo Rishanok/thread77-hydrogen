@@ -12,6 +12,8 @@
     "typecheck": "react-router typegen && tsc --noEmit",
     "codegen": "shopify hydrogen codegen && react-router typegen",
     "shopify:catalog:sync": "node scripts/publish_catalog_to_hydrogen.mjs",
+    "deploy:preview": "node scripts/deploy_oxygen.mjs --preview",
+    "deploy:production": "node scripts/deploy_oxygen.mjs --production",
     "test": "node --test tests/*.test.mjs"
   },
   "prettier": "@shopify/prettier-config",
