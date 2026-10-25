@@ -486,6 +486,56 @@ export type RecommendedProductsQuery = {
       }
     >;
   };
+  newArrivals?: StorefrontAPI.Maybe<{
+    products: {
+      nodes: Array<
+        Pick<
+          StorefrontAPI.Product,
+          'availableForSale' | 'id' | 'title' | 'handle'
+        > & {
+          launchStatus?: StorefrontAPI.Maybe<
+            Pick<StorefrontAPI.Metafield, 'value'>
+          >;
+          releaseDate?: StorefrontAPI.Maybe<
+            Pick<StorefrontAPI.Metafield, 'value'>
+          >;
+          priceRange: {
+            minVariantPrice: Pick<
+              StorefrontAPI.MoneyV2,
+              'amount' | 'currencyCode'
+            >;
+          };
+          featuredImage?: StorefrontAPI.Maybe<
+            Pick<
+              StorefrontAPI.Image,
+              'id' | 'url' | 'altText' | 'width' | 'height'
+            >
+          >;
+          images: {
+            nodes: Array<
+              Pick<
+                StorefrontAPI.Image,
+                'id' | 'url' | 'altText' | 'width' | 'height'
+              >
+            >;
+          };
+          variants: {
+            nodes: Array<
+              Pick<
+                StorefrontAPI.ProductVariant,
+                'id' | 'title' | 'sku' | 'availableForSale'
+              > & {
+                compareAtPrice?: StorefrontAPI.Maybe<
+                  Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>
+                >;
+                price: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>;
+              }
+            >;
+          };
+        }
+      >;
+    };
+  }>;
   products: {
     nodes: Array<
       Pick<
@@ -1512,7 +1562,7 @@ interface GeneratedQueryTypes {
     return: StoreRobotsQuery;
     variables: StoreRobotsQueryVariables;
   };
-  '#graphql\n  fragment RecommendedProduct on Product {\n    availableForSale\n    launchStatus: metafield(namespace: "custom", key: "launch_status") { value }\n    releaseDate: metafield(namespace: "custom", key: "release_date") { value }\n    id\n    title\n    handle\n    priceRange {\n      minVariantPrice {\n        amount\n        currencyCode\n      }\n    }\n    featuredImage {\n      id\n      url\n      altText\n      width\n      height\n    }\n    images(first: 2) {\n      nodes {\n        id\n        url\n        altText\n        width\n        height\n      }\n    }\n    variants(first: 10) {\n      nodes {\n        id\n        title\n        sku\n        availableForSale\n        compareAtPrice { amount currencyCode }\n        price {\n          amount\n          currencyCode\n        }\n      }\n    }\n  }\n  query RecommendedProducts ($country: CountryCode, $language: LanguageCode)\n    @inContext(country: $country, language: $language) {\n    collections(first: 12) {\n      nodes {\n        id title handle description\n        image { url altText width height }\n        products(first: 4) { nodes { ...RecommendedProduct } }\n      }\n    }\n    products(first: 48, sortKey: CREATED_AT, reverse: true) {\n      nodes {\n        ...RecommendedProduct\n      }\n    }\n  }\n': {
+  '#graphql\n  fragment RecommendedProduct on Product {\n    availableForSale\n    launchStatus: metafield(namespace: "custom", key: "launch_status") { value }\n    releaseDate: metafield(namespace: "custom", key: "release_date") { value }\n    id\n    title\n    handle\n    priceRange {\n      minVariantPrice {\n        amount\n        currencyCode\n      }\n    }\n    featuredImage {\n      id\n      url\n      altText\n      width\n      height\n    }\n    images(first: 2) {\n      nodes {\n        id\n        url\n        altText\n        width\n        height\n      }\n    }\n    variants(first: 10) {\n      nodes {\n        id\n        title\n        sku\n        availableForSale\n        compareAtPrice { amount currencyCode }\n        price {\n          amount\n          currencyCode\n        }\n      }\n    }\n  }\n  query RecommendedProducts ($country: CountryCode, $language: LanguageCode)\n    @inContext(country: $country, language: $language) {\n    collections(first: 12) {\n      nodes {\n        id title handle description\n        image { url altText width height }\n        products(first: 4) { nodes { ...RecommendedProduct } }\n      }\n    }\n    newArrivals: collection(handle: "new-arrivals") {\n      products(first: 4, sortKey: COLLECTION_DEFAULT) {\n        nodes { ...RecommendedProduct }\n      }\n    }\n    products(first: 48, sortKey: CREATED_AT, reverse: true) {\n      nodes {\n        ...RecommendedProduct\n      }\n    }\n  }\n': {
     return: RecommendedProductsQuery;
     variables: RecommendedProductsQueryVariables;
   };
