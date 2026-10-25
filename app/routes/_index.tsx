@@ -228,7 +228,7 @@ const RECOMMENDED_PRODUCTS_QUERY = `#graphql
       width
       height
     }
-    images(first: 2) {
+    images(first: 10) {
       nodes {
         id
         url

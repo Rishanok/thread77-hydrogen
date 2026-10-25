@@ -51,12 +51,18 @@ export function ProductCard({
     ? productImages?.find((img: any) => /\blisting\b/i.test(img?.altText ?? ''))
     : null;
   const image = listingImage ?? product.featuredImage ?? productImages?.[0] ?? null;
-  const secondImage =
-    (productImages &&
-      productImages.find((img: any) => img?.url && img.url !== image?.url)) ||
-    productImages?.[1] ||
-    (product as any).secondaryImage ||
-    null;
+  const secondImage = preferListingImage
+    ? productImages?.find(
+        (img: any) =>
+          img?.url &&
+          img.url !== image?.url &&
+          !/hanger/i.test(img.altText ?? ''),
+      ) ?? null
+    : (productImages &&
+        productImages.find((img: any) => img?.url && img.url !== image?.url)) ||
+      productImages?.[1] ||
+      (product as any).secondaryImage ||
+      null;
   const [showQuickAdd, setShowQuickAdd] = useState(false);
   const variants = product.variants?.nodes || [];
 
