@@ -123,7 +123,7 @@ export default function Homepage() {
   const sectionProducts = (curatedNewArrivals.length
     ? curatedNewArrivals
     : fallbackProducts
-  ).slice(0, 4);
+  );
   return (
     <div className="t77-editorial-home" ref={revealRef}>
       <InteractiveJeansHero
@@ -162,7 +162,6 @@ export default function Homepage() {
             <h2>New Arrivals</h2>
             <p>Fresh pieces for your everyday rotation.</p>
           </div>
-          <Link to="/collections/new-arrivals">Discover more ↗</Link>
         </header>
         <div className="t77-collection-grid" data-reveal-group>
           {sectionProducts.length > 0 ? (
@@ -262,7 +261,7 @@ const RECOMMENDED_PRODUCTS_QUERY = `#graphql
       }
     }
     newArrivals: collection(handle: "new-arrivals") {
-      products(first: 4, sortKey: COLLECTION_DEFAULT) {
+      products(first: 48, sortKey: COLLECTION_DEFAULT) {
         nodes { ...RecommendedProduct }
       }
     }
