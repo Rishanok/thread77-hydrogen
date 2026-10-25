@@ -1,7 +1,6 @@
 import {Link, useLoaderData} from 'react-router';
 import type {Route} from './+types/_index';
 import {Image, Money} from '@shopify/hydrogen';
-import {productState} from '~/lib/launch';
 import {isDesignPreview} from '~/lib/designPreview';
 import {previewProducts, previewMoney} from '~/lib/previewProducts';
 import {InteractiveJeansHero} from '~/components/InteractiveJeansHero';
@@ -114,12 +113,12 @@ export default function Homepage() {
   const hangingProductIds = new Set(homeProducts.map((product) => product.id));
   const curatedNewArrivals = newArrivalProducts.filter(
     (product: RecommendedProduct) =>
-      !hangingProductIds.has(product.id) &&
       !isWomen(product.title) &&
       !isWomen(product.handle),
   );
   const fallbackProducts = nonWomenProducts.filter(
-    (product: RecommendedProduct) => !hangingProductIds.has(product.id),
+    (product: RecommendedProduct) =>
+      !hangingProductIds.has(product.id),
   );
   const sectionProducts = (curatedNewArrivals.length
     ? curatedNewArrivals
@@ -171,6 +170,7 @@ export default function Homepage() {
               <ProductCard
                 key={product.id}
                 product={product}
+                preferListingImage
                 loading={index < 4 ? 'eager' : 'lazy'}
               />
             ))
@@ -203,6 +203,7 @@ export default function Homepage() {
           )}
         </div>
       </section>
+
     </div>
   );
 }

@@ -16,11 +16,13 @@ export function ProductCard({
   product,
   loading = 'lazy',
   badge,
+  preferListingImage = false,
 }: {
   product:
     CollectionItemFragment | ProductItemFragment | RecommendedProductFragment;
   loading?: 'eager' | 'lazy';
   badge?: string;
+  preferListingImage?: boolean;
 }) {
   const {open} = useAside();
   const state = productState(product);
@@ -45,7 +47,10 @@ export function ProductCard({
           : badge;
   const variantUrl = useVariantUrl(product.handle);
   const productImages = (product as any).images?.nodes;
-  const image = product.featuredImage ?? productImages?.[0] ?? null;
+  const listingImage = preferListingImage
+    ? productImages?.find((img: any) => /\blisting\b/i.test(img?.altText ?? ''))
+    : null;
+  const image = listingImage ?? product.featuredImage ?? productImages?.[0] ?? null;
   const secondImage =
     (productImages &&
       productImages.find((img: any) => img?.url && img.url !== image?.url)) ||
