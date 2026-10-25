@@ -44,8 +44,8 @@ export function ProductCard({
           ? 'Sale'
           : badge;
   const variantUrl = useVariantUrl(product.handle);
-  const image = product.featuredImage;
   const productImages = (product as any).images?.nodes;
+  const image = product.featuredImage ?? productImages?.[0] ?? null;
   const secondImage =
     (productImages &&
       productImages.find((img: any) => img?.url && img.url !== image?.url)) ||
@@ -58,7 +58,13 @@ export function ProductCard({
   return (
     <div className="t77-card" key={product.id}>
       <div className="t77-card__image-container">
-        {statusBadge && <span className="t77-card__badge">{statusBadge}</span>}
+        {statusBadge && (
+          <span
+            className={`t77-card__badge ${state === 'coming_soon' ? 't77-card__badge--coming-soon' : ''}`}
+          >
+            {statusBadge}
+          </span>
+        )}
 
         <Link
           to={variantUrl}
@@ -76,12 +82,12 @@ export function ProductCard({
             />
           ) : (
             <div
-              style={{
-                width: '100%',
-                height: '100%',
-                backgroundColor: '#f0f0f0',
-              }}
-            />
+              className="t77-card__image-placeholder"
+              aria-label={`No product image available for ${product.title}`}
+            >
+              <span>THREAD77</span>
+              <small>Product image coming soon</small>
+            </div>
           )}
 
           {secondImage?.url ? (
@@ -200,10 +206,10 @@ export function ProductCard({
               )}
             </>
           )}
-          {state === 'coming_soon' && (
-            <span className="t77-card__launch-note">Preview the next drop</span>
-          )}
         </div>
+        {state === 'coming_soon' && (
+          <span className="t77-card__launch-note">Preview the next drop</span>
+        )}
       </div>
     </div>
   );

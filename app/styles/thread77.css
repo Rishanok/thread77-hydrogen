@@ -536,6 +536,13 @@ h6 {
   opacity: 1;
 }
 
+/* Swap product photos instead of blending two differently framed views. */
+.t77-card:hover .t77-card__image--front,
+.t77-card__media-link:hover .t77-card__image--front,
+.t77-card__media-link:focus-visible .t77-card__image--front {
+  visibility: hidden;
+}
+
 .t77-preview-card:hover .t77-preview-card__image--back,
 .t77-preview-card-image>a:hover .t77-preview-card__image--back,
 .t77-preview-card-image>a:focus-visible .t77-preview-card__image--back {
@@ -556,6 +563,40 @@ h6 {
   letter-spacing: 0.02em;
   z-index: 2;
   line-height: 1;
+}
+
+.t77-card__badge--coming-soon {
+  border-color: #202020;
+  border-radius: 2px;
+  background: #202020;
+  color: #ffffff;
+  padding: 6px 9px;
+  font-size: 10px;
+  letter-spacing: 0.045em;
+  text-transform: uppercase;
+}
+
+.t77-card__image-placeholder {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(145deg, #f7f7f5, #ececea);
+  color: #666;
+}
+
+.t77-card__image-placeholder span {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+}
+
+.t77-card__image-placeholder small {
+  font-size: 10px;
+  letter-spacing: 0.04em;
 }
 
 .t77-card__info {
@@ -587,6 +628,15 @@ h6 {
   display: flex;
   align-items: center;
   gap: 6px;
+}
+
+.t77-card__launch-note {
+  display: block;
+  margin-top: 3px;
+  color: #666;
+  font-size: 10px;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
 }
 
 .t77-card__price--compare {

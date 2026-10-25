@@ -157,7 +157,7 @@ Draft import data and access requirements are in `review/SHOPIFY-TEST-PRODUCTS.m
 
 ## Homepage hanger collection and quick shop
 
-Create a Shopify collection titled **Home Screen** with handle **home-screen** and publish it and its products to this Hydrogen storefront. Its first five products, in collection order, populate five hanger positions. Smaller collections repeat in order: three products display as 1, 2, 3, 1, 2; one product fills all five positions. These are repeated views of the same Shopify products, with the same purchase options. Until the collection has visible products, the existing artwork remains a non-purchasable preview.
+Create a Shopify collection titled **Home Screen** with handle **home-screen** and publish it and its products to this Hydrogen storefront. Up to five products, in collection order, appear on the hanger rail. The rail displays only the products present: three products make three hangers, and one product makes one hanger. Products are not repeated to fill empty positions. With no published products, the rail is empty.
 
 Upload transparent images that include the **complete hanger and garment**, with the hook centred at the top. The entire image appears against the rail; the website adds no hanger or hook and does not crop the uploaded hook. Use matching canvases and garment alignment across angles (500 × 935 is recommended).
 

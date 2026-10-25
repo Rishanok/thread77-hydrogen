@@ -3,7 +3,7 @@ import {memo, useCallback, useEffect, useId, useRef, useState} from 'react';
 import type {CSSProperties, PointerEvent, ReactNode} from 'react';
 import {hangerOffset} from '~/lib/hangerMotion';
 import {useHangerMotion} from '~/lib/useHangerMotion';
-import {fillJeansRail, JEANS_ANGLES} from '~/data/hangingJeans';
+import {HANGER_POSITIONS, JEANS_ANGLES} from '~/data/hangingJeans';
 import type {
   HangingJeans,
   JeansAngle,
@@ -17,7 +17,7 @@ const ANGLE_NAMES: Record<JeansAngle, string> = {
   front: 'Front',
 };
 
-// Repeated rail positions share decoded product images.
+// Product views share decoded image requests across hover and quick shop.
 const decodedFrames = new Map<string, Promise<boolean>>();
 function decodeFrame(src: string) {
   const cached = decodedFrames.get(src);
@@ -329,7 +329,7 @@ export function InteractiveJeansHero({
   const [hoveredPosition, setHoveredPosition] = useState<number | null>(null);
   const installation = useRef<HTMLDivElement>(null);
   const openingOrigin = useRef<DOMRect | null>(null);
-  const rail = fillJeansRail(garments);
+  const rail = garments.slice(0, HANGER_POSITIONS);
   const selectedGarment =
     selectedPosition === null ? null : rail[selectedPosition];
   const products = garments.filter((garment) => garment.product);
@@ -452,6 +452,10 @@ export function InteractiveJeansHero({
         <ol
           className="jeans-hero__garments"
           aria-label="Shop the hanging collection"
+          style={{
+            gridTemplateColumns: `repeat(${Math.max(1, rail.length)}, minmax(0, 1fr))`,
+            width: `calc(var(--hanger-pitch) * ${Math.max(1, rail.length)})`,
+          }}
         >
           {rail.map((garment, position) => (
             <HangingJeansItem

@@ -1180,6 +1180,39 @@
   box-sizing: border-box;
 }
 
+.t77-home-products-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 24px;
+  padding-bottom: 24px;
+}
+
+.t77-home-products-heading h2 {
+  margin: 0;
+  font-size: clamp(1.25rem, 2vw, 1.75rem);
+  letter-spacing: -0.035em;
+}
+
+.t77-home-products-heading p {
+  margin: 6px 0 0;
+  color: #737373;
+}
+
+.t77-home-products-heading > a {
+  color: inherit;
+  font-weight: 600;
+  text-underline-offset: 4px;
+}
+
+@media (max-width: 600px) {
+  .t77-home-products-heading {
+    align-items: start;
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
 .t77-blurg-grid-heading {
   padding: 0 0 20px;
   display: flex;

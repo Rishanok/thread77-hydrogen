@@ -179,7 +179,7 @@ export function collectionGarments(products: HomeProduct[]): HangingJeans[] {
   });
 }
 
-/** Repeat the collection in order to fill the rail without duplicating products in Shopify. */
+/** Repeat a rail to five positions for callers that explicitly want a full display rail. */
 export function fillJeansRail(garments: JeansRail): HangingJeans[] {
   if (!garments.length) return [];
   return Array.from(

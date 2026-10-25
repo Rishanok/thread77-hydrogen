@@ -7,13 +7,13 @@ import {previewProducts, previewMoney} from '~/lib/previewProducts';
 import {InteractiveJeansHero} from '~/components/InteractiveJeansHero';
 import {ProductCard} from '~/components/ProductCard';
 import {PreviewCard} from '~/components/PreviewCard';
-import {hangingJeans, jeansViewPreloads, collectionGarments} from '~/data/hangingJeans';
+import {HANGER_POSITIONS, collectionGarments} from '~/data/hangingJeans';
 import jeansHeroStyles from '~/styles/InteractiveJeansHero.css?url';
 import {useScrollReveal} from '~/lib/useScrollReveal';
+import type {RecommendedProductsQuery} from 'storefrontapi.generated';
 
 export const links: Route.LinksFunction = () => [
   {rel: 'stylesheet', href: jeansHeroStyles},
-  ...jeansViewPreloads,
 ];
 
 export const meta: Route.MetaFunction = ({data}) => [
@@ -34,45 +34,62 @@ export async function loader({context, request}: Route.LoaderArgs) {
     const result = await context.storefront.query(RECOMMENDED_PRODUCTS_QUERY);
     return {
       homeProducts,
+      newArrivalProducts: result.newArrivals?.products.nodes ?? [],
       products: result.products.nodes,
       collections: result.collections.nodes,
       catalogueUnavailable: false,
       preview: preview && result.products.nodes.length === 0,
     };
   } catch {
-    return {homeProducts, products: [], collections: [], catalogueUnavailable: true, preview};
+    return {
+      homeProducts,
+      newArrivalProducts: [],
+      products: [],
+      collections: [],
+      catalogueUnavailable: true,
+      preview,
+    };
   }
 }
 
 export default function Homepage() {
   const revealRef = useScrollReveal<HTMLDivElement>();
-  const {products, collections, catalogueUnavailable, preview, homeProducts} =
-    useLoaderData<typeof loader>();
+  const {
+    products,
+    collections,
+    catalogueUnavailable,
+    preview,
+    homeProducts,
+    newArrivalProducts,
+  } = useLoaderData<typeof loader>();
   const isWomen = (str?: string | null) =>
     Boolean(str && /wom[ae]n|female|dress|skirt|leggings/i.test(str));
 
+  type RecommendedProduct = NonNullable<RecommendedProductsQuery['products']['nodes'][number]>;
+  type RecommendedCollection = NonNullable<RecommendedProductsQuery['collections']['nodes'][number]>;
+
   // Filter out any women/female collections and products
   const nonWomenProducts = products.filter(
-    (product) => !isWomen(product.title) && !isWomen(product.handle),
+    (product: RecommendedProduct) => !isWomen(product.title) && !isWomen(product.handle),
   );
 
   const nonWomenCollections = collections.filter(
-    (collection) =>
+    (collection: RecommendedCollection) =>
       !isWomen(collection.handle) && !isWomen(collection.title),
   );
 
   // Filter out Tops, Bottoms, and Women collections as requested
   const allowedCollections = nonWomenCollections.filter(
-    (collection) =>
+    (collection: RecommendedCollection) =>
       !/^(tops|bottoms)$/i.test(collection.handle) &&
       !/^(tops|bottoms)$/i.test(collection.title) &&
       collection.handle !== 'frontpage',
   );
 
-  const menCol = allowedCollections.find((c) => /men/i.test(c.handle));
-  const unisexCol = allowedCollections.find((c) => /unisex/i.test(c.handle));
-  const accessoriesCol = allowedCollections.find((c) => /accessories/i.test(c.handle));
-  const capCol = allowedCollections.find((c) => /cap/i.test(c.handle));
+  const menCol = allowedCollections.find((c: RecommendedCollection) => /men/i.test(c.handle));
+  const unisexCol = allowedCollections.find((c: RecommendedCollection) => /unisex/i.test(c.handle));
+  const accessoriesCol = allowedCollections.find((c: RecommendedCollection) => /accessories/i.test(c.handle));
+  const capCol = allowedCollections.find((c: RecommendedCollection) => /cap/i.test(c.handle));
 
   const categoryLinks = [
     {
@@ -92,10 +109,26 @@ export default function Homepage() {
       url: capCol ? `/collections/${capCol.handle}` : '/collections/caps',
     },
   ];
+  // The hanger rail is driven by `home-screen`; the product row has its own
+  // optional Shopify collection and otherwise shows a short newest-products row.
+  const hangingProductIds = new Set(homeProducts.map((product) => product.id));
+  const curatedNewArrivals = newArrivalProducts.filter(
+    (product: RecommendedProduct) =>
+      !hangingProductIds.has(product.id) &&
+      !isWomen(product.title) &&
+      !isWomen(product.handle),
+  );
+  const fallbackProducts = nonWomenProducts.filter(
+    (product: RecommendedProduct) => !hangingProductIds.has(product.id),
+  );
+  const sectionProducts = (curatedNewArrivals.length
+    ? curatedNewArrivals
+    : fallbackProducts
+  ).slice(0, 4);
   return (
     <div className="t77-editorial-home" ref={revealRef}>
       <InteractiveJeansHero
-        garments={homeProducts.length ? collectionGarments(homeProducts) : hangingJeans}
+        garments={collectionGarments(homeProducts).slice(0, HANGER_POSITIONS)}
         navigation={
           <nav
             className="t77-editorial-category-nav"
@@ -124,10 +157,17 @@ export default function Homepage() {
       )}
 
       {/* Product grid matching /collections/all layout and UI */}
-      <section className="t77-home-products-section" aria-label="Products">
+      <section className="t77-home-products-section" aria-label="New arrivals">
+        <header className="t77-home-products-heading">
+          <div>
+            <h2>New Arrivals</h2>
+            <p>Fresh pieces for your everyday rotation.</p>
+          </div>
+          <Link to="/collections/new-arrivals">Discover more ↗</Link>
+        </header>
         <div className="t77-collection-grid" data-reveal-group>
-          {nonWomenProducts.length > 0 ? (
-            nonWomenProducts.map((product, index) => (
+          {sectionProducts.length > 0 ? (
+            sectionProducts.map((product: any, index: number) => (
               <ProductCard
                 key={product.id}
                 product={product}
@@ -218,6 +258,11 @@ const RECOMMENDED_PRODUCTS_QUERY = `#graphql
         id title handle description
         image { url altText width height }
         products(first: 4) { nodes { ...RecommendedProduct } }
+      }
+    }
+    newArrivals: collection(handle: "new-arrivals") {
+      products(first: 4, sortKey: COLLECTION_DEFAULT) {
+        nodes { ...RecommendedProduct }
       }
     }
     products(first: 48, sortKey: CREATED_AT, reverse: true) {

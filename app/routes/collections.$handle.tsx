@@ -51,7 +51,16 @@ async function loadCriticalData({context, params, request}: Route.LoaderArgs) {
     }),
   ]);
 
-  const category = ['jeans', 'tees', 'caps', 'cap', 'accessories'].includes(handle)
+  const category = [
+    'jeans',
+    'tees',
+    'caps',
+    'cap',
+    'accessories',
+    'men',
+    'unisex',
+    'new-arrivals',
+  ].includes(handle)
     ? handle
     : null;
   const preview = isDesignPreview(request) && !catalogue.nodes.length;
@@ -71,14 +80,27 @@ async function loadCriticalData({context, params, request}: Route.LoaderArgs) {
       categoryDescription = 'Everyday tees. Easy shapes, on repeat.';
     } else if (category === 'caps' || category === 'cap') {
       categoryQuery =
-        '(product_type:Cap OR product_type:Caps OR product_type:Hats OR tag:cap OR tag:caps OR beanie)';
+        '(product_type:Cap OR product_type:Caps OR product_type:Hats OR tag:cap OR tag:caps OR tag:beanie)';
       categoryTitle = 'Caps';
       categoryDescription = 'Headwear and caps for everyday streetwear.';
     } else if (category === 'accessories') {
       categoryQuery =
-        '(product_type:Accessories OR tag:accessories OR beanie OR frontpack OR bag)';
+        '(product_type:Accessories OR tag:accessories OR tag:beanie OR tag:bag OR tag:jewellery OR tag:jewelry)';
       categoryTitle = 'Accessories';
       categoryDescription = 'Everyday streetwear essentials and accessories.';
+    } else if (category === 'men') {
+      categoryQuery =
+        '(product_type:Men OR product_type:Mens OR tag:men OR tag:mens)';
+      categoryTitle = 'Men';
+      categoryDescription = 'Explore the men’s collection.';
+    } else if (category === 'unisex') {
+      categoryQuery = '(product_type:Unisex OR tag:unisex)';
+      categoryTitle = 'Unisex';
+      categoryDescription = 'Explore pieces made to wear your way.';
+    } else if (category === 'new-arrivals') {
+      categoryQuery = '';
+      categoryTitle = 'New Arrivals';
+      categoryDescription = 'Fresh pieces for your everyday rotation.';
     }
 
     const result = await storefront.query(CATALOG_QUERY, {
