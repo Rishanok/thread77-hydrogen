@@ -1266,38 +1266,100 @@
 }
 
 .t77-contact-methods {
+  display: grid;
   align-self: center;
-  border-top: 1px solid #dededb;
+  gap: 12px;
 }
 
-.t77-contact-methods > a {
+.t77-contact-card {
   display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 6px 20px;
+  grid-template-columns: 52px minmax(0, 1fr) auto;
+  gap: 16px;
   align-items: center;
-  padding: 20px 0;
-  border-bottom: 1px solid #dededb;
+  min-height: 104px;
+  padding: 18px;
+  border: 1px solid #e8e8e4;
+  border-radius: 8px;
+  background: #fafaf8;
   color: inherit;
   text-decoration: none;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
 }
 
-.t77-contact-methods > a span:first-child {
+.t77-contact-card:hover {
+  transform: translateY(-2px);
+  border-color: #c8c8c2;
+  box-shadow: 0 12px 28px #20202012;
+}
+
+.t77-contact-card__icon {
+  display: grid;
+  width: 52px;
+  height: 52px;
+  place-items: center;
+  border-radius: 6px;
+  background: #202020;
+  color: #fff;
+}
+
+.t77-contact-card__icon svg {
+  width: 23px;
+  height: 23px;
+  stroke: currentColor;
+  stroke-width: 1.65;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.t77-contact-card--instagram .t77-contact-card__icon {
+  background: linear-gradient(145deg, #292929, #4a4a4a);
+}
+
+.t77-contact-card__icon-dot {
+  fill: currentColor;
+  stroke: none;
+}
+
+.t77-contact-card__content {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.t77-contact-card__channel {
+  color: #777;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.t77-contact-card__content strong {
+  overflow-wrap: anywhere;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.t77-contact-card__detail {
   color: #777;
   font-size: 12px;
-  grid-column: 1;
+  line-height: 1.45;
 }
 
-.t77-contact-methods > a strong {
-  grid-column: 1;
-  font-size: clamp(15px, 1.6vw, 20px);
-  font-weight: 500;
-  overflow-wrap: anywhere;
-}
-
-.t77-contact-methods > a span:last-child {
-  grid-column: 2;
-  grid-row: 1 / span 2;
-  font-size: 20px;
+.t77-contact-card__action {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid #d8d8d3;
+  border-radius: 4px;
+  background: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .t77-contact-methods__empty {
@@ -1385,6 +1447,23 @@
   .t77-creator-invite {
     grid-template-columns: 1fr;
     gap: 32px;
+  }
+
+  .t77-contact-card {
+    grid-template-columns: 44px minmax(0, 1fr);
+    gap: 12px;
+    padding: 14px;
+  }
+
+  .t77-contact-card__icon {
+    width: 44px;
+    height: 44px;
+  }
+
+  .t77-contact-card__action {
+    grid-column: 2;
+    justify-self: start;
+    margin-top: 4px;
   }
 
   .t77-contact-existing-content {

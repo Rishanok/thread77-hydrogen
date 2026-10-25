@@ -57,7 +57,10 @@ function loadDeferredData({context}: Route.LoaderArgs) {
 export default function Page() {
   const {page} = useLoaderData<typeof loader>();
 
-  if (['contact', 'contact-us'].includes(page.handle.toLowerCase())) {
+  if (
+    /contact/i.test(page.handle) ||
+    /contact/i.test(page.title.trim())
+  ) {
     return <ContactPage title={page.title} body={page.body} />;
   }
 
@@ -106,25 +109,35 @@ function ContactPage({title, body}: {title: string; body: string}) {
         </div>
         <div className="t77-contact-methods">
           {whatsappUrl && (
-            <a href={whatsappUrl} target="_blank" rel="noreferrer">
-              <span>WhatsApp</span>
-              <strong>Chat with Thread77</strong>
-              <span aria-hidden="true">↗</span>
-            </a>
+            <ContactMethodCard
+              href={whatsappUrl}
+              channel="WhatsApp"
+              title="Chat with our team"
+              detail="Order help, product questions, and quick support."
+              action="Start a chat"
+              icon="whatsapp"
+            />
           )}
           {email && (
-            <a href={`mailto:${email}`}>
-              <span>Email</span>
-              <strong>{email}</strong>
-              <span aria-hidden="true">↗</span>
-            </a>
+            <ContactMethodCard
+              href={`mailto:${email}`}
+              channel="Email"
+              title={email}
+              detail="For order support and other questions."
+              action="Send email"
+              icon="email"
+              external={false}
+            />
           )}
           {instagram && (
-            <a href={instagram} target="_blank" rel="noreferrer">
-              <span>Instagram</span>
-              <strong>{instagram.replace(/^https?:\/\/(www\.)?/, '')}</strong>
-              <span aria-hidden="true">↗</span>
-            </a>
+            <ContactMethodCard
+              href={instagram}
+              channel="Instagram"
+              title="@thread77.co"
+              detail="Questions, outfit ideas, or a collaboration pitch."
+              action="Send us a DM"
+              icon="instagram"
+            />
           )}
         </div>
         {body && (
@@ -170,6 +183,62 @@ function ContactPage({title, body}: {title: string; body: string}) {
         </aside>
       </section>
     </div>
+  );
+}
+
+function ContactMethodCard({
+  href,
+  channel,
+  title,
+  detail,
+  action,
+  icon,
+  external = true,
+}: {
+  href: string;
+  channel: string;
+  title: string;
+  detail: string;
+  action: string;
+  icon: 'whatsapp' | 'instagram' | 'email';
+  external?: boolean;
+}) {
+  return (
+    <a
+      className={`t77-contact-card t77-contact-card--${icon}`}
+      href={href}
+      aria-label={`${action}: ${channel}`}
+      target={external ? '_blank' : undefined}
+      rel={external ? 'noreferrer' : undefined}
+    >
+      <span className="t77-contact-card__icon" aria-hidden="true">
+        {icon === 'instagram' ? (
+          <svg viewBox="0 0 24 24" fill="none">
+            <rect x="3.5" y="3.5" width="17" height="17" rx="5" />
+            <circle cx="12" cy="12" r="4" />
+            <circle className="t77-contact-card__icon-dot" cx="17.7" cy="6.7" r="1" />
+          </svg>
+        ) : icon === 'whatsapp' ? (
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M20.2 11.7a8.1 8.1 0 0 1-11.8 7.2L3.5 20l1.1-4.7a8.1 8.1 0 1 1 15.6-3.6Z" />
+            <path d="M9 8.2c.3-.4.7-.3.9.1l.7 1.6c.1.3 0 .5-.3.8l-.5.5c.6 1.1 1.5 2 2.7 2.6l.5-.6c.2-.2.5-.3.8-.1l1.5.7c.4.2.4.6.1.9-.5.7-1.2 1.1-2.1 1-2.9-.3-6.3-3.6-6.6-6.4-.1-.5.8-1.1 1.3-1.1Z" />
+          </svg>
+        ) : (
+          <svg viewBox="0 0 24 24" fill="none">
+            <rect x="3" y="5" width="18" height="14" rx="2" />
+            <path d="m4 7 8 6 8-6" />
+          </svg>
+        )}
+      </span>
+      <span className="t77-contact-card__content">
+        <span className="t77-contact-card__channel">{channel}</span>
+        <strong>{title}</strong>
+        <span className="t77-contact-card__detail">{detail}</span>
+      </span>
+      <span className="t77-contact-card__action">
+        {action} <span aria-hidden="true">↗</span>
+      </span>
+    </a>
   );
 }
 
