@@ -789,6 +789,9 @@
   outline: 2px solid #776143;
   outline-offset: 4px;
 }
+.hanger-dialog:focus-visible {
+  outline: none;
+}
 .hanger-dialog[data-closing='true'] .hanger-dialog__details,
 .hanger-dialog[data-closing='true'] .hanger-dialog__header,
 .hanger-dialog[data-closing='true'] .hanger-dialog__browse {

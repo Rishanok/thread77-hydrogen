@@ -29,7 +29,6 @@ export function HangerProductDialog(props: Props) {
   const {product, initialImageUrl, productIndex, productCount, onNavigate} =
     props;
   const dialog = useRef<HTMLDialogElement>(null);
-  const closeButton = useRef<HTMLButtonElement>(null);
   const titleId = useId();
   const initialOrigin = useRef(props.origin);
   const firstProduct = useRef(product.id);
@@ -46,7 +45,7 @@ export function HangerProductDialog(props: Props) {
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     node.showModal();
-    closeButton.current?.focus({preventScroll: true});
+    node.focus({preventScroll: true});
     const image = node.querySelector<HTMLImageElement>('.hanger-dialog__image');
     if (
       image &&
@@ -158,6 +157,7 @@ export function HangerProductDialog(props: Props) {
     <dialog
       ref={dialog}
       className="hanger-dialog"
+      tabIndex={-1}
       aria-labelledby={titleId}
       onCancel={(event) => {
         event.preventDefault();
@@ -183,7 +183,6 @@ export function HangerProductDialog(props: Props) {
           <span>THE HANGING EDIT</span>
         </span>
         <button
-          ref={closeButton}
           type="button"
           className="hanger-dialog__close"
           onClick={close}
@@ -262,14 +261,14 @@ function ProductDetails({
   titleId: string;
   onClose: () => void;
 }) {
+  const images = product.images.nodes.slice(0, 3);
   const [imageIndex, setImageIndex] = useState(
     Math.max(
       0,
-      product.images.nodes.findIndex((image) => image.url === initialImageUrl),
+      images.findIndex((image) => image.url === initialImageUrl),
     ),
   );
   const state = productState(product);
-  const images = product.images.nodes;
   const image = images[imageIndex];
   const variants = product.variants.nodes;
   const lowestPrice = variants.reduce<
