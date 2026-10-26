@@ -849,8 +849,15 @@
     display: none;
   }
   .hanger-dialog__panel {
-    padding-inline: 20px;
+    grid-template-rows: minmax(0, 1fr) auto;
     gap: 8px;
+    padding: 8px 16px max(12px, env(safe-area-inset-bottom));
+  }
+  .hanger-dialog__gallery {
+    align-items: center;
+  }
+  .hanger-dialog__image {
+    max-height: 100%;
   }
   .hanger-dialog__arrow {
     top: 18dvh;
@@ -865,6 +872,32 @@
   }
   .hanger-dialog__details h2 {
     font-size: 27px;
+  }
+  .hanger-dialog__angles {
+    display: flex;
+    justify-content: center;
+    width: min(100%, 360px);
+    min-height: 48px;
+    gap: 4px;
+    margin: 12px auto 10px;
+    padding: 3px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .hanger-dialog__angles::-webkit-scrollbar {
+    display: none;
+  }
+  .hanger-dialog__angles button {
+    min-width: 88px;
+    min-height: 42px;
+    padding: 10px 14px;
+    font-size: 10px;
+    white-space: nowrap;
+  }
+  .hanger-dialog__availability-btn {
+    min-height: 46px;
   }
 }
 /* On short landscape screens the garment and purchase controls share a row. */

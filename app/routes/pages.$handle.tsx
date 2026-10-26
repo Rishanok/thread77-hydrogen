@@ -140,12 +140,6 @@ function ContactPage({title, body}: {title: string; body: string}) {
             />
           )}
         </div>
-        {body && (
-          <div
-            className="t77-contact-existing-content"
-            dangerouslySetInnerHTML={{__html: body}}
-          />
-        )}
       </section>
 
       <section className="t77-creator-invite" aria-labelledby="t77-creator-title">
