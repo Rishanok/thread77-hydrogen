@@ -336,6 +336,35 @@ function ProductDetails({
             ))}
           </div>
         )}
+        {images.length > 1 && (
+          <div
+            className="hanger-dialog__mobile-image-nav"
+            role="group"
+            aria-label="Product images"
+          >
+            <button
+              type="button"
+              aria-label="Previous image"
+              onClick={() =>
+                setImageIndex((current) => (current - 1 + images.length) % images.length)
+              }
+            >
+              ←
+            </button>
+            <span aria-live="polite">
+              Image {imageIndex + 1} of {images.length}
+            </span>
+            <button
+              type="button"
+              aria-label="Next image"
+              onClick={() =>
+                setImageIndex((current) => (current + 1) % images.length)
+              }
+            >
+              →
+            </button>
+          </div>
+        )}
         <div className="hanger-dialog__actions">
           <Link
             className="hanger-dialog__availability-btn"
